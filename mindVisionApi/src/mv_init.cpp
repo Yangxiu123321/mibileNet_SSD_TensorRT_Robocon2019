@@ -148,7 +148,7 @@ CameraSdkStatus MvInit::createCamera(int cameraId)
     // 曝光时间us，尽量达到30帧每秒。
 	CameraSetExposureTime(m_hCamera,30000);
 	// 模拟增益
-	CameraSetAnalogGain(m_hCamera,4);
+	CameraSetAnalogGain(m_hCamera,0);
 	// RGB增益
 	CameraSetGain(m_hCamera,112,100,137);
 	// 饱和度

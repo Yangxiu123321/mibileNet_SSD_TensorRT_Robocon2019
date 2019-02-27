@@ -92,6 +92,8 @@ bool TensorNet::caffeToTRTModel(const char* deployFile,
     parser->setPluginFactory(&pluginFactory);
 
     bool useFp16 = builder->platformHasFastFp16();
+    useFp16 = false;
+    std::cout << "useFp16:" << useFp16 << std::endl;
 
     DataType modelDataType = useFp16 ? DataType::kHALF : DataType::kFLOAT;
 

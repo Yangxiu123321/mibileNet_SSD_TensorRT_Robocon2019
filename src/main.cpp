@@ -16,8 +16,8 @@
 #include <opencv2/opencv.hpp>
 #include <mv_init.h>
 
-const char* weight  = "../../../model/robocon/MobileNetSSD_deploy.caffemodel";
-const char* model = "../../../model/robocon/MobileNetSSD_deploy_iplugin.prototxt";
+const char* weight  = "../../../model/blue/MobileNetSSD_deploy.caffemodel";
+const char* model = "../../../model/blue/MobileNetSSD_deploy_iplugin.prototxt";
 
 
 const char* INPUT_BLOB_NAME = "data";
@@ -119,10 +119,10 @@ int main(int argc, char *argv[])
 
     //    std::string imgFile = "../../testPic/test.jpg";
     //    frame = cv::imread(imgFile);
-    //    cv::VideoCapture cap("/home/user/code/caffe/data/robocon/11.avi");
+    //cv::VideoCapture cap("/home/nvidia/Videos/11.avi");
 
     //serial init
-    serial::Serial my_serial("/dev/ttyUSB0", 115200, serial::Timeout::simpleTimeout(2));
+    serial::Serial my_serial("/dev/ttyS0", 115200, serial::Timeout::simpleTimeout(2));
     if(my_serial.isOpen())
     {
         std::cout << "[INFO]" << "serial port initialize ok" << std::endl;
@@ -139,16 +139,16 @@ int main(int argc, char *argv[])
     while(1)
     {
 
-        // cap >> frame;
-        frame = mvCamera.getImage();
-
-        if(frame.empty())
+        //cap >> srcImg;
+        srcImg = mvCamera.getImage();
+	//std::cout << srcImg.size() <<std::endl;
+        if(srcImg.empty())
         {
             std::cout << "no imageData" << std::endl;
             break;
         }
 
-        srcImg = frame.clone();
+        srcImg.copyTo(frame);
 
         cv::resize(frame, frame, cv::Size(300,300));
         const size_t size = width * height * sizeof(float3);
@@ -178,8 +178,13 @@ int main(int argc, char *argv[])
         {
             if(output[7*k+1] == -1)
                 break;
+	    float confidence = output[7*k+2];
+            
+            if(confidence < 0.6)
+		{
+			continue;
+		}
             float classIndex = output[7*k+1];
-            float confidence = output[7*k+2];
             float xmin = output[7*k + 3];
             float ymin = output[7*k + 4];
             float xmax = output[7*k + 5];
