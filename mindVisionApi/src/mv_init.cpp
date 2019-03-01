@@ -38,7 +38,7 @@ static void* uiDisplayThread(void* lpParam)
 
 	g_pRgbBuffer = (BYTE *)malloc(IMAGE_COLS*IMAGE_ROWS * 3);
         
-        cout << "created thread" << endl;
+        cout << "created camera thread" << endl;
 	while (!pThis->m_bExit)
 	{
 
@@ -73,14 +73,12 @@ static void* uiDisplayThread(void* lpParam)
 				Mat srcBGR;
 				cvtColor(matImage,srcBGR,COLOR_BGR2RGB);
 				srcBGR.copyTo(pThis->srcImage);
-				cout << "debug 1" << endl;
 				sem_post(&pThis->sems);
 			}
 
 			//在成功调用CameraGetImageBuffer后，必须调用CameraReleaseImageBuffer来释放获得的buffer。
 			//否则再次调用CameraGetImageBuffer时，程序将被挂起，知道其他线程中调用CameraReleaseImageBuffer来释放了buffer
 			CameraReleaseImageBuffer(pThis->m_hCamera, pbyBuffer);
-                        cout << "debug 2" << endl;
 		}
 	}
 	std::cout << "start release source...\r\n";
@@ -92,9 +90,9 @@ static void* uiDisplayThread(void* lpParam)
 }
 
 
-CameraSdkStatus MvInit::createCamera(int cameraId)
+CameraSdkStatus MvInit::createCamera(int playgroundId)
 {
-	
+	int cameraIdx = playgroundId%2;	
 	tSdkCameraDevInfo sCameraList[CAMERA_NUM];
 	INT iCameraNums;
 	CameraSdkStatus status = CAMERA_STATUS_SUCCESS;
@@ -112,7 +110,7 @@ CameraSdkStatus MvInit::createCamera(int cameraId)
 	 
 	// 初始化相机
 	std::cout << "CameraInit" << std::endl;
-	if ((status = CameraInit(&sCameraList[cameraId], -1, -1, &m_hCamera)) != CAMERA_STATUS_SUCCESS)
+	if ((status = CameraInit(&sCameraList[cameraIdx], -1, -1, &m_hCamera)) != CAMERA_STATUS_SUCCESS)
 	{
 		char msg[128];
 		//sprintf_s(msg, "Failed to init the camera! Error code is %d", status);
@@ -135,7 +133,7 @@ CameraSdkStatus MvInit::createCamera(int cameraId)
 	 iIndex = 2 640*480 
 	 others is about GTK_Demo	 
 	 */
-    TSdkImageResolution.iIndex = 0;
+      TSdkImageResolution.iIndex = 0;
 	// TSdkImageResolution.iWidth = 640;
 	// TSdkImageResolution.iHeight = 480;
 	CameraSetImageResolution(m_hCamera,&TSdkImageResolution);

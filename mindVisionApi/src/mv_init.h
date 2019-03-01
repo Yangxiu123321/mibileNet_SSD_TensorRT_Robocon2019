@@ -25,7 +25,7 @@ class MvInit
 public:
 	MvInit(int cameraId);
 	~MvInit();
-	CameraSdkStatus createCamera(int cameraId);
+	CameraSdkStatus createCamera(int playgroundId);
 
 	Mat getImage() 
 	{

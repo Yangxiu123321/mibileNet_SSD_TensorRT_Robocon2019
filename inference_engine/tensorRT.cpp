@@ -34,10 +34,10 @@ TensorRT::TensorRT(int argc,char *argv[],int playground)
 
 TensorRT::~TensorRT()
 {
-    cudaFree(imgCUDA);
-    cudaFreeHost(imgCPU);
-    cudaFree(output);
-    tensorNet.destroy();
+    //cudaFree(imgCUDA);
+    //cudaFreeHost(imgCPU);
+    //cudaFree(output);
+    //tensorNet.destroy();
 }
 
 void TensorRT::init(void)
@@ -56,12 +56,12 @@ void TensorRT::init(void)
     
     std::cout << "modelname:" << modelName << "\n" << "weightName:" << weightName << std::endl;
 
-    //const char* model = modelName.data();
-    //const char* weight = weightName.data();
+    const char* model = modelName.data();
+    const char* weight = weightName.data();
     //const char* model = "/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/model/red/MobileNetSSD_deploy.prototxt";
     //const char* weight = "/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/model/red/MobileNetSSD_deploy.caffemodel";
-    const char* weight  = "../../../model/MobileNetSSD_deploy.caffemodel";
-    const char* model = "../../../model/MobileNetSSD_deploy_iplugin.prototxt";
+    //const char* weight  = "../../../model/MobileNetSSD_deploy.caffemodel";
+    //const char* model = "../../../model/MobileNetSSD_deploy_iplugin.prototxt";
     
     tensorNet.LoadNetwork(model,weight,INPUT_BLOB_NAME, output_vector,BATCH_SIZE);
     std::cout << "load model finish\n";
@@ -172,4 +172,12 @@ bool TensorRT::inference(void)
     //cv::imshow("mobileNet",srcImg);
     free(imgData);
     return true;
+}
+
+void TensorRT::freeTensor(void)
+{
+    cudaFree(imgCUDA);
+    cudaFreeHost(imgCPU);
+    cudaFree(output);
+    tensorNet.destroy();
 }

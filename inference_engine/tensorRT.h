@@ -26,10 +26,12 @@ public:
 
     void init(void);
     bool inference(void);
+    void freeTensor(void);
 
     cv::Mat srcImg;
 
-    int playgroundIdx;    
+    int playgroundIdx;
+  
 private:
     /* data */
     const char* INPUT_BLOB_NAME = "data";
@@ -45,7 +47,5 @@ private:
     void* imgCPU;
     void* imgCUDA;
 };
-
-
 
 #endif
