@@ -84,11 +84,15 @@ bool TensorNet::caffeToTRTModel(const char* deployFile,
                                 unsigned int maxBatchSize,
                                 std::ostream& gieModelStdStream)
 {
+    std::cout << "useFp16:"  << std::endl;
     IBuilder* builder = createInferBuilder(gLogger);
+    std::cout << "useFp16:" << std::endl;
     INetworkDefinition* network = builder->createNetwork();
+    std::cout << "useFp16:" << std::endl;
     //    builder->setMinFindIterations(3);	// allow time for TX1 GPU to spin up
     //    builder->setAverageFindIterations(2);
     ICaffeParser* parser = createCaffeParser();
+    std::cout << "useFp16:" << std::endl;
     parser->setPluginFactory(&pluginFactory);
 
     bool useFp16 = builder->platformHasFastFp16();

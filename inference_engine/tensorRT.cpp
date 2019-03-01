@@ -19,7 +19,7 @@ int ParseAndCheckCommandLine(int argc, char *argv[]) {
 
     if (FLAGS_m_red.empty() || FLAGS_m_blue.empty()) {
         std::cout << "[ERROR]" << "-m not set" << std::endl; 
-        return -1;
+        //return -1;
     }
 
     return 0;
@@ -56,10 +56,15 @@ void TensorRT::init(void)
     
     std::cout << "modelname:" << modelName << "\n" << "weightName:" << weightName << std::endl;
 
-    const char* model = modelName.data();
-    const char* weight = weightName.data();
+    //const char* model = modelName.data();
+    //const char* weight = weightName.data();
+    //const char* model = "/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/model/red/MobileNetSSD_deploy.prototxt";
+    //const char* weight = "/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/model/red/MobileNetSSD_deploy.caffemodel";
+    const char* weight  = "../../../model/MobileNetSSD_deploy.caffemodel";
+    const char* model = "../../../model/MobileNetSSD_deploy_iplugin.prototxt";
     
     tensorNet.LoadNetwork(model,weight,INPUT_BLOB_NAME, output_vector,BATCH_SIZE);
+    std::cout << "load model finish\n";
 
     dimsData = tensorNet.getTensorDims(INPUT_BLOB_NAME);
     dimsOut = tensorNet.getTensorDims(OUTPUT_BLOB_NAME);

@@ -2,4 +2,4 @@
 
 cd ../build/build/bin
 
-./mobileNet -m_red=../model/red/MobileNetSSD_deploy -m_blue=../model/blue/MobileNetSSD_deploy -com=/dev/ttyS0
+./mobileNet -m_red=/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/model/red/MobileNetSSD_deploy -m_blue=/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/model/blue/MobileNetSSD_deploy -com=/dev/ttyS0
