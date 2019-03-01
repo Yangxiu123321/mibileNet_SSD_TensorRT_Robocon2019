@@ -11,8 +11,23 @@ DEFINE_string(m_red, "", model_message);
 /// It is a required parameter
 DEFINE_string(m_blue, "", model_message);
 
+int ParseAndCheckCommandLine(int argc, char *argv[]) {
+    // ---------------------------Parsing and validation of input args--------------------------------------
+    gflags::ParseCommandLineNonHelpFlags(&argc, &argv, true);
+
+    std::cout << "Parsing input parameters" << std::endl;
+
+    if (FLAGS_m_red.empty() || FLAGS_m_blue.empty()) {
+        std::cout << "[ERROR]" << "-m not set" << std::endl; 
+        return -1;
+    }
+
+    return 0;
+}
+
 TensorRT::TensorRT(int argc,char *argv[],int playground)
 {
+    ParseAndCheckCommandLine(argc,argv);
     playgroundIdx = playground % 2;
     init();
 }
