@@ -1,3 +1,7 @@
+#ifndef __TENSORNET_H
+
+#define __TENSORNET_H
+
 #include "pluginImplement.h"
 
 using namespace nvinfer1;
@@ -83,5 +87,5 @@ private:
 };
 
 
-//#endif
+#endif
 

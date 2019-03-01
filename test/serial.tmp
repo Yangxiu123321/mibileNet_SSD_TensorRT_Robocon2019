@@ -1,0 +1,16 @@
+    while(1)
+    {
+        string serialData = my_serial.read(8);
+        if(serialData == "action01")
+        {
+            playground = 0;
+            break;
+        }else if(serialData == "action10")
+        {
+            playground = 1;
+            break;
+        }else
+        {
+            std::cout<<"[STATUS]" << "wait...\n";
+        }
+    }

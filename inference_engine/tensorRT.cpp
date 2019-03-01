@@ -1,14 +1,6 @@
-#include "common.h"
-#include "cudaUtility.h"
-#include "mathFunctions.h"
-#include "pluginImplement.h"
-#include "tensorNet.h"
-#include "loadImage.h"
-#include "imageBuffer.h"
-#include <chrono>
-#include <thread>
+#include "tensorRT.h"
 #include <gflags/gflags.h>
-#include <opencv2/opencv.hpp>
+
 
 /// @brief message for model argument
 static const char model_message[] = "Required. Path to an .prototxt file with a trained model.filename no ext";
@@ -22,6 +14,7 @@ DEFINE_string(m_blue, "", model_message);
 TensorRT::TensorRT(int argc,char *argv[],int playground)
 {
     playgroundIdx = playground % 2;
+    init();
 }
 
 TensorRT::~TensorRT()
@@ -35,20 +28,25 @@ TensorRT::~TensorRT()
 void TensorRT::init(void)
 {
     std::string modelName = FLAGS_m_red + ".prototxt";
-    std::string weightName = FLAGS_m_red + ".caffemodel"
+    std::string weightName = FLAGS_m_red + ".caffemodel";
     if(playgroundIdx)
     {
-        std::string modelName = FLAGS_m_red + ".prototxt";
-        std::string weightName = FLAGS_m_red + ".caffemodel"
+        modelName = FLAGS_m_red + ".prototxt";
+        weightName = FLAGS_m_red + ".caffemodel";
     }else
     {
-        std::string modelName = FLAGS_m_blue + ".prototxt";
-        std::string weightName = FLAGS_m_blue + ".caffemodel"
+        modelName = FLAGS_m_blue + ".prototxt";
+        weightName = FLAGS_m_blue + ".caffemodel";
     }
     
-    tensorNet.LoadNetwork(modelName,weightName,INPUT_BLOB_NAME, output_vector,BATCH_SIZE);
+    std::cout << "modelname:" << modelName << "\n" << "weightName:" << weightName << std::endl;
 
-    imsData = tensorNet.getTensorDims(INPUT_BLOB_NAME);
+    const char* model = modelName.data();
+    const char* weight = weightName.data();
+    
+    tensorNet.LoadNetwork(model,weight,INPUT_BLOB_NAME, output_vector,BATCH_SIZE);
+
+    dimsData = tensorNet.getTensorDims(INPUT_BLOB_NAME);
     dimsOut = tensorNet.getTensorDims(OUTPUT_BLOB_NAME);
 
     data = allocateMemory( dimsData , (char*)"input blob");
@@ -98,14 +96,14 @@ void TensorRT::loadImg( cv::Mat &input, int re_width, int re_height, float *data
     }
 }
 
-void TensorRT::inference(void)
+bool TensorRT::inference(void)
 {
     if(srcImg.empty())
     {
         std::cout << "no imageData" << std::endl;
-        break;
+        return false;
     }
-    Mat frame;
+    cv::Mat frame;
     srcImg.copyTo(frame);
 
     cv::resize(frame, frame, cv::Size(300,300));
@@ -151,11 +149,7 @@ void TensorRT::inference(void)
     int y2 = static_cast<int>(ymax * srcImg.rows);
     cv::rectangle(srcImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
     }
-    cv::imshow("mobileNet",srcImg);
-    int c = cv::waitKey(1);
-    if(c == 27 || c == 'q' || c == 'Q')
-    {
-        break;
-    }
+    //cv::imshow("mobileNet",srcImg);
     free(imgData);
+    return true;
 }

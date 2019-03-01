@@ -37,7 +37,8 @@ static void* uiDisplayThread(void* lpParam)
 	CameraSdkStatus status = CAMERA_STATUS_SUCCESS;
 
 	g_pRgbBuffer = (BYTE *)malloc(IMAGE_COLS*IMAGE_ROWS * 3);
-
+        
+        cout << "created thread" << endl;
 	while (!pThis->m_bExit)
 	{
 
@@ -72,12 +73,14 @@ static void* uiDisplayThread(void* lpParam)
 				Mat srcBGR;
 				cvtColor(matImage,srcBGR,COLOR_BGR2RGB);
 				srcBGR.copyTo(pThis->srcImage);
+				cout << "debug 1" << endl;
 				sem_post(&pThis->sems);
 			}
 
 			//在成功调用CameraGetImageBuffer后，必须调用CameraReleaseImageBuffer来释放获得的buffer。
 			//否则再次调用CameraGetImageBuffer时，程序将被挂起，知道其他线程中调用CameraReleaseImageBuffer来释放了buffer
 			CameraReleaseImageBuffer(pThis->m_hCamera, pbyBuffer);
+                        cout << "debug 2" << endl;
 		}
 	}
 	std::cout << "start release source...\r\n";
