@@ -153,7 +153,7 @@ bool TensorRT::inference(void)
       int classIndex = output[7*k+1];
       if(classIndex == 0 || classIndex == 4)
       {
-	continue;
+	    continue;
       }
       float confidence = output[7*k+2];   
       if(confidence < 0.6)
@@ -164,11 +164,41 @@ bool TensorRT::inference(void)
       float ymin = output[7*k + 4];
       float xmax = output[7*k + 5];
       float ymax = output[7*k + 6];
-      std::cout << classIndex << " , " << confidence << " , "  << xmin << " , " << ymin<< " , " << xmax<< " , " << ymax << std::endl;
       int x1 = static_cast<int>(xmin * debugImg.cols);
       int y1 = static_cast<int>(ymin * debugImg.rows);
       int x2 = static_cast<int>(xmax * debugImg.cols);
       int y2 = static_cast<int>(ymax * debugImg.rows);
+      int weidth = x2 - x1;
+      int height = y2 - y1;
+      Mat roiImg;
+      debugImg(cv::Rect(x1,y1,weidth,height)).copyTo(roiImg);
+      int blueMoreRedNum = 0;
+      int redMoreBlueNum = 0;
+      for (int i = 0;i<roiImg.rows();i++)
+        {
+            for(int j = 0;j<roiImg.cols();j++)
+            {
+                uchar* roiData = roiImg.ptr<uchar>(i,j);
+                // 计数需要满足的条件://1、R > G(G > R)。3、总体分量比较小，并且需要的分量最大
+                if( (roiData[0] > roiData[2]) && (roiData[0] > roiData[1]))
+                {
+                    blueMoreRedNum ++;
+                }else if((roiData[2] > roiData[0]) && (roiData[2] > roiData[1]))
+                {
+                    redMoreBlueNum ++;
+                }else
+                {
+                    continue;
+                }
+                
+            }
+        }
+
+        if( (playgroundIdx && (blueMoreRedNum > redMoreBlueNum)) || (!playgroundIdx && (blueMoreRedNum < redMoreBlueNum)))
+        {
+            continue;
+        }
+      std::cout << classIndex << " , " << confidence << " , "  << blueMoreRedNum << " , " << redMoreBlueNum << std::endl;
       cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
       cv::imshow("mobileNet",debugImg);
     }
