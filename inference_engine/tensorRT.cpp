@@ -58,8 +58,6 @@ void TensorRT::init(void)
 
     const char* model = modelName.data();
     const char* weight = weightName.data();
-    //const char* model = "/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/model/red/MobileNetSSD_deploy.prototxt";
-    //const char* weight = "/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/model/red/MobileNetSSD_deploy.caffemodel";
     //const char* weight  = "../../../model/MobileNetSSD_deploy.caffemodel";
     //const char* model = "../../../model/MobileNetSSD_deploy_iplugin.prototxt";
     
@@ -125,6 +123,7 @@ bool TensorRT::inference(void)
     }
     cv::Mat frame;
     srcImg.copyTo(frame);
+    srcImg.copyTo(debugImg);
 
     cv::resize(frame, frame, cv::Size(300,300));
     const size_t size = IMAGE_HEIGHT * IMAGE_WIDTH * sizeof(float3);
@@ -149,27 +148,30 @@ bool TensorRT::inference(void)
 
     for (int k=0; k<3; k++)
     {
-        if(output[7*k+1] == -1)
-            break;
-    float confidence = output[7*k+2];
-        
-    if(confidence < 0.6)
-    {
-        continue;
+       if(output[7*k+1] == -1)
+           break;
+      int classIndex = output[7*k+1];
+      if(classIndex == 0 || classIndex == 4)
+      {
+	continue;
+      }
+      float confidence = output[7*k+2];   
+      if(confidence < 0.6)
+      {
+          continue;
+      }
+      float xmin = output[7*k + 3];
+      float ymin = output[7*k + 4];
+      float xmax = output[7*k + 5];
+      float ymax = output[7*k + 6];
+      std::cout << classIndex << " , " << confidence << " , "  << xmin << " , " << ymin<< " , " << xmax<< " , " << ymax << std::endl;
+      int x1 = static_cast<int>(xmin * debugImg.cols);
+      int y1 = static_cast<int>(ymin * debugImg.rows);
+      int x2 = static_cast<int>(xmax * debugImg.cols);
+      int y2 = static_cast<int>(ymax * debugImg.rows);
+      cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
+      cv::imshow("mobileNet",debugImg);
     }
-    float classIndex = output[7*k+1];
-    float xmin = output[7*k + 3];
-    float ymin = output[7*k + 4];
-    float xmax = output[7*k + 5];
-    float ymax = output[7*k + 6];
-    std::cout << classIndex << " , " << confidence << " , "  << xmin << " , " << ymin<< " , " << xmax<< " , " << ymax << std::endl;
-    int x1 = static_cast<int>(xmin * srcImg.cols);
-    int y1 = static_cast<int>(ymin * srcImg.rows);
-    int x2 = static_cast<int>(xmax * srcImg.cols);
-    int y2 = static_cast<int>(ymax * srcImg.rows);
-    cv::rectangle(srcImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
-    }
-    //cv::imshow("mobileNet",srcImg);
     free(imgData);
     return true;
 }
@@ -181,3 +183,6 @@ void TensorRT::freeTensor(void)
     cudaFree(output);
     tensorNet.destroy();
 }
+
+
+

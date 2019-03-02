@@ -11,8 +11,8 @@
 
 
 
-#define IMAGE_HEIGHT 480
-#define IMAGE_WIDTH 640
+#define IMAGE_HEIGHT 300
+#define IMAGE_WIDTH 300
 
 #define BATCH_SIZE 1
 
@@ -29,11 +29,13 @@ public:
     void freeTensor(void);
 
     cv::Mat srcImg;
+    cv::Mat debugImg;
 
     int playgroundIdx;
   
 private:
-    /* data */
+
+	/* data */
     const char* INPUT_BLOB_NAME = "data";
     const char* OUTPUT_BLOB_NAME = "detection_out";
     std::vector<std::string> output_vector = {OUTPUT_BLOB_NAME};
@@ -41,8 +43,8 @@ private:
     DimsCHW dimsData;
     DimsCHW dimsOut;
 
-    float* data;
-    float* output;
+    float* data = NULL;
+    float* output = NULL;
 
     void* imgCPU;
     void* imgCUDA;

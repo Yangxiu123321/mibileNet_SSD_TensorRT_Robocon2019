@@ -47,6 +47,12 @@ set(CUDA_NVCC_FLAGS
 	-gencode arch=compute_62,code=sm_62
         )
 
+file(GLOB cudaSources util/cuda/*.cu)
+file(GLOB cudaIncludes util/cuda/*.h)
+
+file(GLOB tensorRTsourceFiles tensorRTplugin/*.cpp tensorRTplugin/*.cu)
+file(GLOB tensorRTheaderFiles tensorRTplugin/*.h)
+
 file(GLOB includes tensorRTplugin/*.h util/cuda/*.h util/*.h inference_engine/*.h )
 
 # serial lib
@@ -61,7 +67,7 @@ target_link_libraries(camera ${CMAKE_CURRENT_SOURCE_DIR}/mindVisionApi/lib/libMV
 install(TARGETS camera LIBRARY DESTINATION lib)
 
 #infer
-file(GLOB sources util/*.cu util/*.cpp util/cuda/*.cu  util/cuda/*.cpp  tensorRTplugin/*.cpp  tensorRTplugin/*.cu ${INFERENCE_DIR}/*.cpp)
+file(GLOB sources util/*.cu util/*.cpp util/cuda/*.cu  util/cuda/*.cpp  tensorRTplugin/*.cpp  tensorRTplugin/*.cu)#${INFERENCE_DIR}/*.cpp
 cuda_add_library(inference SHARED ${sources})
 target_link_libraries(inference ${CMAKE_CURRENT_SOURCE_DIR}/tensorRT4/ARM64/lib/libnvcaffe_parser.so)
 target_link_libraries(inference ${CMAKE_CURRENT_SOURCE_DIR}/tensorRT4/ARM64/lib/libnvinfer.so)
@@ -79,7 +85,7 @@ foreach(include ${includes})
 endforeach()
 
 #tensor (will be error)
-#file(GLOB TENSOR_SRC ${INFERENCE_DIR}/*.cpp)
+file(GLOB TENSOR_SRC ${INFERENCE_DIR}/*.cpp)
 #add_library(tensor SHARED ${TENSOR_SRC})
 #target_link_libraries(tensor ${OpenCV_LIBS})
 #install(TARGETS tensor LIBRARY DESTINATION lib)
@@ -102,7 +108,7 @@ include_directories(
 # Camera Driver
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/mindVisionApi/include)
 
-add_executable(mobileNet ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
+add_executable(mobileNet ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${TENSOR_SRC})
 
 ## OpenCV
 include_directories(${OpenCV_INCLUDE_DIRS})
