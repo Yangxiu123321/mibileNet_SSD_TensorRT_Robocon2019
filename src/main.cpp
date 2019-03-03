@@ -22,13 +22,14 @@ int main(int argc, char *argv[])
     std::cout << "camera init\n";
     // playground-1 only want to be test
     MvInit mvCamera(playground-1);
-
+    //tensorRT.srcImg =cv::imread("/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/test_picture/1.BMP");
     while(1)
     {
         // get image
 	//std::cout << "get img\n";
+        //cv::Mat srcImg = mvCamera.getImage();
+	//cv::flip(srcImg,tensorRT.srcImg,1);
         tensorRT.srcImg = mvCamera.getImage();
-        Mat srcImg = mvCamera.getImage();
         //cap >> tensorRT.srcImg;
 	cv::imshow("src",tensorRT.srcImg);
 

@@ -124,8 +124,8 @@ bool TensorRT::inference(void)
     cv::Mat frame;
     srcImg.copyTo(frame);
     srcImg.copyTo(debugImg);
-
     cv::resize(frame, frame, cv::Size(300,300));
+    cv::resize(debugImg, debugImg, cv::Size(640,480));
     const size_t size = IMAGE_HEIGHT * IMAGE_WIDTH * sizeof(float3);
 
     if( CUDA_FAILED( cudaMalloc( &imgCUDA, size)) )
@@ -156,7 +156,7 @@ bool TensorRT::inference(void)
 	    continue;
       }
       float confidence = output[7*k+2];   
-      if(confidence < 0.6)
+      if(confidence < 0.5)
       {
           continue;
       }
@@ -168,37 +168,39 @@ bool TensorRT::inference(void)
       int y1 = static_cast<int>(ymin * debugImg.rows);
       int x2 = static_cast<int>(xmax * debugImg.cols);
       int y2 = static_cast<int>(ymax * debugImg.rows);
+      std::cout << classIndex << " , " << confidence << std::endl;
       int weidth = x2 - x1;
       int height = y2 - y1;
-      Mat roiImg;
+      cv::Mat roiImg;
       debugImg(cv::Rect(x1,y1,weidth,height)).copyTo(roiImg);
       int blueMoreRedNum = 0;
       int redMoreBlueNum = 0;
-      for (int i = 0;i<roiImg.rows();i++)
+      for (int i = 0;i<roiImg.rows;i++)
         {
-            for(int j = 0;j<roiImg.cols();j++)
+            for(int j = 0;j<roiImg.cols;j++)
             {
                 uchar* roiData = roiImg.ptr<uchar>(i,j);
                 // 计数需要满足的条件://1、R > G(G > R)。3、总体分量比较小，并且需要的分量最大
-                if( (roiData[0] > roiData[2]) && (roiData[0] > roiData[1]))
+                if((roiData[0] < 100) && (roiData[1] < 100) && (roiData[2] < 100) && (roiData[0] > roiData[2]) && (roiData[0] > roiData[1]) && (roiData[0] > roiData[1]))
                 {
                     blueMoreRedNum ++;
-                }else if((roiData[2] > roiData[0]) && (roiData[2] > roiData[1]))
+                }else if((roiData[0] < 100) && (roiData[1] < 100) && (roiData[2] < 100) && (roiData[2] > roiData[0]) && (roiData[2] > roiData[1]) && (roiData[2] > roiData[1]))
                 {
                     redMoreBlueNum ++;
                 }else
                 {
                     continue;
-                }
-                
+                }               
             }
         }
 
-        if( (playgroundIdx && (blueMoreRedNum > redMoreBlueNum)) || (!playgroundIdx && (blueMoreRedNum < redMoreBlueNum)))
+        if( (playgroundIdx && ((blueMoreRedNum > redMoreBlueNum))) || (!playgroundIdx && (blueMoreRedNum < redMoreBlueNum)))
         {
-            continue;
+            cv::imshow("roi",roiImg);
+            //continue;
         }
-      std::cout << classIndex << " , " << confidence << " , "  << blueMoreRedNum << " , " << redMoreBlueNum << std::endl;
+      cv::imwrite("roi.BMP",roiImg);
+      std::cout << classIndex << " , " << confidence << " , "  << "blue:" << blueMoreRedNum << " , " << "red:" << redMoreBlueNum << std::endl;
       cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
       cv::imshow("mobileNet",debugImg);
     }

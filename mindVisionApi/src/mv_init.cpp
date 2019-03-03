@@ -146,12 +146,12 @@ CameraSdkStatus MvInit::createCamera(int playgroundId)
 	std::cout << "set exposureTime" << std::endl;
 	// exposea// 设置曝光时间手动曝光
 	CameraSetAeState(m_hCamera,FALSE);
-    // 曝光时间us，尽量达到30帧每秒。
-	CameraSetExposureTime(m_hCamera,20000);
+        // 曝光时间us，尽量达到30帧每秒。
+	CameraSetExposureTime(m_hCamera,7370);//7370
 	// 模拟增益
-	CameraSetAnalogGain(m_hCamera,0);
+	CameraSetAnalogGain(m_hCamera,2);
 	// RGB增益
-	CameraSetGain(m_hCamera,112,100,137);
+	CameraSetGain(m_hCamera,112,100,137);//112 100 137
 	// 饱和度
 	CameraSetSaturation(m_hCamera,100);
 
