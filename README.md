@@ -10,3 +10,5 @@
    tensorRT4.0(ARM64 or X64)
 
    cuDNN7.4
+
+在3.0版本中把红与蓝数据集混合，在后层中加入AlexNet来判断颜色

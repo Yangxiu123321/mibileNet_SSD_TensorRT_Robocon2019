@@ -11,6 +11,9 @@ DEFINE_string(m_red, "", model_message);
 /// It is a required parameter
 DEFINE_string(m_blue, "", model_message);
 
+/// It is a required parameter
+DEFINE_string(m_alex, "", model_message);
+
 int ParseAndCheckCommandLine(int argc, char *argv[]) {
     // ---------------------------Parsing and validation of input args--------------------------------------
     gflags::ParseCommandLineNonHelpFlags(&argc, &argv, true);
@@ -44,6 +47,8 @@ void TensorRT::init(void)
 {
     std::string modelName = FLAGS_m_red + ".prototxt";
     std::string weightName = FLAGS_m_red + ".caffemodel";
+    std::string modelName2 = FLAGS_m_alex + ".prototxt";
+    std::string weightName2 = FLAGS_m_alex + ".caffemodel";
     if(playgroundIdx)
     {
         modelName = FLAGS_m_red + ".prototxt";
@@ -58,19 +63,29 @@ void TensorRT::init(void)
 
     const char* model = modelName.data();
     const char* weight = weightName.data();
+    const char* model2 = modelName2.data();
+    const char* weight2 = weightName2.data();
     //const char* weight  = "../../../model/MobileNetSSD_deploy.caffemodel";
     //const char* model = "../../../model/MobileNetSSD_deploy_iplugin.prototxt";
     
-    tensorNet.LoadNetwork(model,weight,INPUT_BLOB_NAME, output_vector,BATCH_SIZE);
+    tensorNet.LoadNetwork(model,weight,INPUT_BLOB_NAME, output_vector,
+                         model,weight2,INPUT_BLOB_NAME2, output_vector2,
+                         BATCH_SIZE);
     std::cout << "load model finish\n";
 
     dimsData = tensorNet.getTensorDims(INPUT_BLOB_NAME);
     dimsOut = tensorNet.getTensorDims(OUTPUT_BLOB_NAME);
+    dimsData2 = tensorNet.getTensorDims(INPUT_BLOB_NAME2);
+    dimsOut2 = tensorNet.getTensorDims(OUTPUT_BLOB_NAME2);
 
     data = allocateMemory( dimsData , (char*)"input blob");
     std::cout << "allocate data" << std::endl;
     output = allocateMemory( dimsOut  , (char*)"output blob");
     std::cout << "allocate output" << std::endl;
+    data2 = allocateMemory( dimsData2 , (char*)"input2 blob");
+    std::cout << "allocate data2" << std::endl;
+    output2 = allocateMemory( dimsOut2  , (char*)"output2 blob");
+    std::cout << "allocate output2" << std::endl;
 }
 
 float* TensorRT::allocateMemory(DimsCHW dims, char* info)
@@ -148,61 +163,67 @@ bool TensorRT::inference(void)
 
     for (int k=0; k<3; k++)
     {
-       if(output[7*k+1] == -1)
-           break;
-      int classIndex = output[7*k+1];
-      if(classIndex == 0 || classIndex == 4)
-      {
-	    continue;
-      }
-      float confidence = output[7*k+2];   
-      if(confidence < 0.5)
-      {
-          continue;
-      }
-      float xmin = output[7*k + 3];
-      float ymin = output[7*k + 4];
-      float xmax = output[7*k + 5];
-      float ymax = output[7*k + 6];
-      int x1 = static_cast<int>(xmin * debugImg.cols);
-      int y1 = static_cast<int>(ymin * debugImg.rows);
-      int x2 = static_cast<int>(xmax * debugImg.cols);
-      int y2 = static_cast<int>(ymax * debugImg.rows);
-      std::cout << classIndex << " , " << confidence << std::endl;
-      int weidth = x2 - x1;
-      int height = y2 - y1;
-      cv::Mat roiImg;
-      debugImg(cv::Rect(x1,y1,weidth,height)).copyTo(roiImg);
-      int blueMoreRedNum = 0;
-      int redMoreBlueNum = 0;
-      for (int i = 0;i<roiImg.rows;i++)
+        if(output[7*k+1] == -1)
+            break;
+        int classIndex = output[7*k+1];
+        if(classIndex == 0 || classIndex == 4)
         {
-            for(int j = 0;j<roiImg.cols;j++)
+        continue;
+        }
+        float confidence = output[7*k+2];   
+        if(confidence < 0.5)
+        {
+            continue;
+        }
+        float xmin = output[7*k + 3];
+        float ymin = output[7*k + 4];
+        float xmax = output[7*k + 5];
+        float ymax = output[7*k + 6];
+        int x1 = static_cast<int>(xmin * debugImg.cols);
+        int y1 = static_cast<int>(ymin * debugImg.rows);
+        int x2 = static_cast<int>(xmax * debugImg.cols);
+        int y2 = static_cast<int>(ymax * debugImg.rows);
+        std::cout << classIndex << " , " << confidence << std::endl;
+        int weidth = x2 - x1;
+        int height = y2 - y1;
+        cv::Mat roiImg;
+        debugImg(cv::Rect(x1,y1,weidth,height)).copyTo(roiImg);
+        cv::resize(roiImg,roiImg,cv::Size(227,227));
+        for (int channel = 0; channel < 3; ++channel)
+        {
+            int pixels = 227 * 227;
+            for (int i = 0; i < pixels; ++i)
             {
-                uchar* roiData = roiImg.ptr<uchar>(i,j);
-                // 计数需要满足的条件://1、R > G(G > R)。3、总体分量比较小，并且需要的分量最大
-                if((roiData[0] < 100) && (roiData[1] < 100) && (roiData[2] < 100) && (roiData[0] > roiData[2]) && (roiData[0] > roiData[1]) && (roiData[0] > roiData[1]))
-                {
-                    blueMoreRedNum ++;
-                }else if((roiData[0] < 100) && (roiData[1] < 100) && (roiData[2] < 100) && (roiData[2] > roiData[0]) && (roiData[2] > roiData[1]) && (roiData[2] > roiData[1]))
-                {
-                    redMoreBlueNum ++;
-                }else
-                {
-                    continue;
-                }               
+                roiData[channel * pixels + i] = float(roiImg.data[i * 3 + channel]);
             }
         }
-
-        if( (playgroundIdx && ((blueMoreRedNum > redMoreBlueNum))) || (!playgroundIdx && (blueMoreRedNum < redMoreBlueNum)))
+        const size_t roiSize = 227 * 227 * sizeof(float3);
+        if( CUDA_FAILED( cudaMalloc( &roiCUDA, roiSize)) )
         {
-            cv::imshow("roi",roiImg);
-            //continue;
+            cout <<"Cuda Memory allocation error occured."<<endl;
+            return false;
         }
-      cv::imwrite("roi.BMP",roiImg);
-      std::cout << classIndex << " , " << confidence << " , "  << "blue:" << blueMoreRedNum << " , " << "red:" << redMoreBlueNum << std::endl;
-      cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
-      cv::imshow("mobileNet",debugImg);
+        float* roiDataBGR = (float*)malloc(roiSize);
+        memset(roiDataBGR,0,roiSize);
+        for(int i = 0;i<227*227*3;i++)
+        {
+            roiDataBGR[i] = roiData[i] - meanDataBGR[i];
+        }
+        if(CUDA_FAILED( cudaMemcpyAsync(roiCUDA,roiDataBGR,roiSize,cudaMemcpyHostToDevice)))
+        {
+            cout <<"Cuda trancefor data error occured."<<endl;
+            return false;
+        }
+
+        void* buffers2[] = { roiCUDA, output2 };
+        std::cout << "start roi inference\n";
+        std::cout << "roi size:" << roiSize << "\n";
+        tensorNet.imageInferenceForAlex( buffers2, output_vector2.size() + 1, BATCH_SIZE);
+        std::cout << "end roi inference\n";
+        std::cout << classIndex << " , " << confidence << " , "  << "blue:" << blueMoreRedNum << " , " << "red:" << redMoreBlueNum << std::endl;
+        cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
+        cv::imshow("mobileNet",debugImg);
+        free(roiDataBGR);
     }
     free(imgData);
     return true;

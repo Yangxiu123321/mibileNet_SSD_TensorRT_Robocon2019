@@ -1,3 +1,7 @@
+#ifndef __TENSORNET_H
+
+#define __TENSORNET_H
+
 #include "pluginImplement.h"
 
 using namespace nvinfer1;
@@ -48,33 +52,21 @@ class TensorNet
 {
 public:
     bool caffeToTRTModel(const char* deployFile,
-                        const char* modelFile,
-                        const std::vector<std::string>& outputs,
-                        std::ostream& gieModelStdStream,
-                        const char* deployFile2,
-                        const char* modelFile2,
-                        const std::vector<std::string>& outputs2,
-                        std::ostream& gieModelStdStream2,
-                        unsigned int maxBatchSize);
+                         const char* modelFile,
+                         const std::vector<std::string>& outputs,
+                         unsigned int maxBatchSize,
+                         std::ostream& gieModelStream);
     bool LoadNetwork( const char* prototxt_path,
                       const char* model_path,
                       const char* input_blob,
                       const std::vector<std::string>& output_blobs,
-                      const char* prototxt_path2,
-                      const char* model_path2,
-                      const char* input_blob2,
-                      const std::vector<std::string>& output_blobs2,
                       uint32_t maxBatchSize );
     void createInference();
 
     void imageInference(void** buffers, int nbBuffer, int batchSize);
-    void imageInferenceForAlex(void** buffers, int nbBuffer, int batchSize);
-
     void timeInference(int iteration, int batchSize);
 
     DimsCHW getTensorDims(const char* name);
-
-    DimsCHW getTensorDimsForAlex(const char* name);
 
 //    void getLayerOutput(const char* name);
 
@@ -89,15 +81,11 @@ private:
     IRuntime* infer;
     ICudaEngine* engine;
 
-    IRuntime* infer2;
-    ICudaEngine* engine2;
-    IHostMemory *gieModelStream2{nullptr};
-
     Logger gLogger;
     Profiler gProfiler;
 
 };
 
 
-//#endif
+#endif
 

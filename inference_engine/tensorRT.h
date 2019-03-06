@@ -34,12 +34,12 @@ public:
     int playgroundIdx;
   
 private:
-
+    TensorNet tensorNet;
 	/* data */
     const char* INPUT_BLOB_NAME = "data";
     const char* OUTPUT_BLOB_NAME = "detection_out";
     std::vector<std::string> output_vector = {OUTPUT_BLOB_NAME};
-    TensorNet tensorNet;
+
     DimsCHW dimsData;
     DimsCHW dimsOut;
 
@@ -48,6 +48,18 @@ private:
 
     void* imgCPU;
     void* imgCUDA;
+
+    /*data2*/
+    const char* INPUT_BLOB_NAME2 = "data";
+    const char* OUTPUT_BLOB_NAME2 = "prob";
+    std::vector<std::string> output_vector2 = {OUTPUT_BLOB_NAME2};
+    DimsCHW dimsData2;
+    DimsCHW dimsOut2;
+
+    float* data2 = NULL;
+    float* output2 = NULL;
+
+    void* roiCUDA;
 };
 
 #endif
