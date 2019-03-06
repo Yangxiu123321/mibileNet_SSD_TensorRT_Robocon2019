@@ -26,10 +26,10 @@ bool TensorNet::LoadNetwork(const char* prototxt_path,
     gieModelStdStream2.seekg(0, gieModelStdStream2.beg);
     char cache_path[512];
     sprintf(cache_path, "%s.%u.tensorcache", model_path, maxBatchSize);
-    printf( "attempting to open cache file %s\n", cache_path);
+    printf( "attempting to open ssd cache file %s\n", cache_path);
     char cache_path2[512];
     sprintf(cache_path2, "%s.%u.tensorcache", model_path2, maxBatchSize);
-    printf( "attempting to open cache file %s\n", cache_path2);
+    printf( "attempting to open alex cache file %s\n", cache_path2);
 
     std::ifstream cache( cache_path );
     std::ifstream cache2( cache_path2 );
@@ -43,7 +43,7 @@ bool TensorNet::LoadNetwork(const char* prototxt_path,
             printf("failed to load %s\n", model_path);
             return 0;
         }
-        printf( "network profiling complete, writing cache to %s\n", cache_path);
+        printf( "ssd network profiling complete, writing cache to %s\n", cache_path);
         std::ofstream outFile;
         outFile.open(cache_path);
         outFile << gieModelStdStream.rdbuf();
@@ -51,7 +51,7 @@ bool TensorNet::LoadNetwork(const char* prototxt_path,
         gieModelStdStream.seekg(0, gieModelStdStream.beg);
         printf( "completed writing cache to %s\n", cache_path);
 
-        printf( "network profiling complete, writing cache to %s\n", cache_path2);
+        printf( "alexnet network profiling complete, writing cache to %s\n", cache_path2);
         std::ofstream outFile2;
         outFile2.open(cache_path2);
         outFile2 << gieModelStdStream2.rdbuf();
@@ -349,22 +349,22 @@ bool SortByProb(const std::pair<int, float>& a,
   return (a.second > b.second);
 }
 
-void TensorNet::imageInferenceForAlex(void** buffers, int nbBuffer, int batchSize)
+void TensorNet::imageInferenceForAlex(void** buffers, int nbBuffer, int batchSize,int continueFlag,int playgroundIdx)
 {
-  assert(engine2->getNbBindings() == 2);
+    assert(engine2->getNbBindings() == 2);
 //   void *buffers[2];
 
   // 1.- Create an execution context to store intermediate activation values.
-  IExecutionContext *context = engine2->createExecutionContext();
-  context->setProfiler(&gProfiler);
+    IExecutionContext *context = engine2->createExecutionContext();
+    context->setProfiler(&gProfiler);
 
   // 2.- Use the input and output layer names to get the correct input and
   // output indexes.
-  int inputIndex = engine2->getBindingIndex("data");
-  int outputIndex = engine2->getBindingIndex("prob");
+    int inputIndex = engine2->getBindingIndex("data");
+    int outputIndex = engine2->getBindingIndex("prob");
 
   // allocate GPU buffers
-  Dims3 inputDims =
+    Dims3 inputDims =
             static_cast<Dims3 &&>(engine2->getBindingDimensions(inputIndex)),
         outputDims =
             static_cast<Dims3 &&>(engine2->getBindingDimensions(outputIndex));
@@ -373,29 +373,29 @@ void TensorNet::imageInferenceForAlex(void** buffers, int nbBuffer, int batchSiz
   // The input size is 618348 bytes, since: 1 x 227 x 227 x 3 x 4 = 618348.
   // Our batch size is one, the image is 227 pixels by 227 pixels in size,
   // there are 3 channels (BGR) and the size of a float is 4 bytes.
-  size_t inputSize = batchSize * inputDims.d[0] * inputDims.d[1] *
+    size_t inputSize = batchSize * inputDims.d[0] * inputDims.d[1] *
                      inputDims.d[2] * sizeof(float);
   // The output size is 4000 since: 1 x 1000 x 1 x 1 x 4 = 4000 bytes.
   // Out batch size is one, we have 1000 probabilities in the output, and the
   // rest is 1.
-  size_t outputSize = batchSize * outputDims.d[0] * outputDims.d[1] *
+    size_t outputSize = batchSize * outputDims.d[0] * outputDims.d[1] *
                       outputDims.d[2] * sizeof(float);
-  if (1) {
-    std::cout << "inputSize      : " << inputSize << std::endl;
-    std::cout << "batchSize      : " << batchSize << std::endl;
-    std::cout << "inputDims.d[0] : " << inputDims.d[0] << std::endl;
-    std::cout << "inputDims.d[1] : " << inputDims.d[1] << std::endl;
-    std::cout << "inputDims.d[2] : " << inputDims.d[2] << std::endl;
-    std::cout << "sizeof(float)  : " << sizeof(float) << std::endl;
+    if (0) {
+        std::cout << "inputSize      : " << inputSize << std::endl;
+        std::cout << "batchSize      : " << batchSize << std::endl;
+        std::cout << "inputDims.d[0] : " << inputDims.d[0] << std::endl;
+        std::cout << "inputDims.d[1] : " << inputDims.d[1] << std::endl;
+        std::cout << "inputDims.d[2] : " << inputDims.d[2] << std::endl;
+        std::cout << "sizeof(float)  : " << sizeof(float) << std::endl;
 
-    std::cout << "outputIndex     : " << outputIndex << std::endl;
-    std::cout << "outputSize     : " << outputSize << std::endl;
-    std::cout << "batchSize      : " << batchSize << std::endl;
-    std::cout << "outputDims.d[0]: " << outputDims.d[0] << std::endl;
-    std::cout << "outputDims.d[1]: " << outputDims.d[1] << std::endl;
-    std::cout << "outputDims.d[2]: " << outputDims.d[2] << std::endl;
-    std::cout << "sizeof(float)  : " << sizeof(float) << std::endl;
-  }
+        std::cout << "outputIndex     : " << outputIndex << std::endl;
+        std::cout << "outputSize     : " << outputSize << std::endl;
+        std::cout << "batchSize      : " << batchSize << std::endl;
+        std::cout << "outputDims.d[0]: " << outputDims.d[0] << std::endl;
+        std::cout << "outputDims.d[1]: " << outputDims.d[1] << std::endl;
+        std::cout << "outputDims.d[2]: " << outputDims.d[2] << std::endl;
+        std::cout << "sizeof(float)  : " << sizeof(float) << std::endl;
+    }
   // 3.- Using these indices, set up a buffer array pointing to the input
 //   // and output buffers on the GPU.
 //   CHECK(cudaMalloc(&buffers[inputIndex], inputSize));
@@ -407,28 +407,40 @@ void TensorNet::imageInferenceForAlex(void** buffers, int nbBuffer, int batchSiz
 //   // 4.- Run the image through the network, while typically asynchronous, we
 //   // will do synchronous in this case. We do it the number of times required
 //   // to profile.
-  for (int i = 0; i < 1; i++)
-    context->execute(batchSize, buffers);
+    for (int i = 0; i < 1; i++)
+        context->execute(batchSize, buffers);
 
-  float prob[2];
-  CHECK(cudaMemcpy(prob, buffers[outputIndex], 2 * sizeof(float),
+    float prob[2];
+    CHECK(cudaMemcpy(prob, buffers[outputIndex], 2 * sizeof(float),
                    cudaMemcpyDeviceToHost));
 
-  typedef std::pair<int, float> inference;
-  std::vector<inference> results;
-  for (int i = 0; i < 2; ++i) {
+    typedef std::pair<int, float> inference;
+    std::vector<inference> results;
+    for (int i = 0; i < 2; ++i) {
     results.push_back(std::make_pair(i, prob[i]));
-  }
-  std::sort(results.begin(), results.end(), SortByProb);
+    }
+    std::sort(results.begin(), results.end(), SortByProb);
 
-  for (int i = 0; i < 2; ++i) {
-   int index = results.at(i).first;
-    printf("inference result:%d %4.2f\n",index,
-            results.at(i).second * 100);
-}
+    // for (int i = 0; i < 2; ++i) 
+    // {
+    //     int index = results.at(0).first;
+    //     printf("inference result:%d %4.2f\n",index,
+    //         results.at(0).second * 100);
+    // }
+    int index = results.at(0).first;
+    float confidence = results.at(0).second * 100;
+    // 红场蓝快与蓝场红块都需要返回
+    if((playgroundIdx && index) || (!playgroundIdx && !index))
+    {
+        continueFlag = 1;
+    }else
+    {
+        continueFlag = 0;
+    }
+    
 
-// //  PrintInference(prob, LABELS_FILE, HOTDOG_MODE);
-//   // Release the context and buffers
+//  PrintInference(prob, LABELS_FILE, HOTDOG_MODE);
+//  Release the context and buffers
     context->destroy();
 //   CHECK(cudaFree(buffers[inputIndex]));
 //   CHECK(cudaFree(buffers[outputIndex]));

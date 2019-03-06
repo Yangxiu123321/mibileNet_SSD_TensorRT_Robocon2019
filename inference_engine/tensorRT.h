@@ -32,6 +32,8 @@ public:
     cv::Mat debugImg;
 
     int playgroundIdx;
+
+    uchar runFlag = 0;
   
 private:
     TensorNet tensorNet;

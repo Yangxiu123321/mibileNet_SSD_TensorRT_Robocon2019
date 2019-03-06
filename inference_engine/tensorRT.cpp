@@ -58,11 +58,10 @@ void TensorRT::init(void)
     parser->destroy();
 
     // Subtract mean from image
+    std::cout << "start import meanfile...\n";
     const float* meanData = reinterpret_cast<const float*>(meanBlob->getData());
-
     DimsNCHW testDim = meanBlob->getDimensions();
-
-    std::cout << testDim.n() <<" " << testDim.c() << " " << testDim.h() << " " << testDim.w() << std::endl;
+    std::cout << "meanfile(nchw):" << testDim.n() <<" " << testDim.c() << " " << testDim.h() << " " << testDim.w() << std::endl;
 
     for (int channel = 0; channel < 3; ++channel) {
         int pixels = 227 * 227;
@@ -70,7 +69,9 @@ void TensorRT::init(void)
         meanDataBGR[channel * pixels + i] = float(meanData[i * 3 + 2 - channel]);
         }
     }
-    meanBlob->destroy();
+    meanBlob->destroy();\
+    std::cout << "import meanfile sucessfully\n";
+
     std::string modelName = FLAGS_m_red + ".prototxt";
     std::string weightName = FLAGS_m_red + ".caffemodel";
     std::string modelName2 = FLAGS_m_alex + ".prototxt";
@@ -186,7 +187,8 @@ bool TensorRT::inference(void)
     tensorNet.imageInference( buffers, output_vector.size() + 1, BATCH_SIZE);
 
     vector<vector<float> > detections;
-
+    
+    int boneScore = 0;
     for (int k=0; k<3; k++)
     {
         if(output[7*k+1] == -1)
@@ -197,7 +199,7 @@ bool TensorRT::inference(void)
         continue;
         }
         float confidence = output[7*k+2];   
-        if(confidence < 0.5)
+        if(confidence < 0.6)
         {
             continue;
         }
@@ -244,7 +246,35 @@ bool TensorRT::inference(void)
         void* buffers2[] = { roiCUDA, output2 };
         std::cout << "start roi inference\n";
         std::cout << "roi size:" << roiSize << "\n";
-        tensorNet.imageInferenceForAlex( buffers2, output_vector2.size() + 1, BATCH_SIZE);
+        int continueFlag = 0;
+        tensorNet.imageInferenceForAlex( buffers2, output_vector2.size() + 1, BATCH_SIZE,continueFlag);
+        if(continueFlag)
+        {
+            free(roiDataBGR);
+            continue;
+        }
+        switch(int(classIndex))
+        {
+            case 1:
+                boneScore += 50;
+            break;
+            case 2:
+                boneScore += 40;
+            break;
+            case 3:
+                boneScore += 20;
+            break;
+            default:
+            break;
+        }
+        if(boneScore > 49)
+        {
+            runFlag = 1;
+        }else
+        {
+            runFlag = 0;
+        }
+        
         std::cout << "end roi inference\n";
         cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
         cv::imshow("mobileNet",debugImg);
@@ -260,6 +290,7 @@ void TensorRT::freeTensor(void)
     cudaFree(roiCUDA);
     cudaFreeHost(imgCPU);
     cudaFree(output);
+    cudaFree(output2);
     tensorNet.destroy();
 }
 
