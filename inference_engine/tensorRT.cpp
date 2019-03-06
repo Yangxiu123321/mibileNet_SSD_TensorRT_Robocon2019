@@ -1,6 +1,8 @@
 #include "tensorRT.h"
 #include <gflags/gflags.h>
 
+using namespace nvinfer1;
+using namespace nvcaffeparser1;
 
 /// @brief message for model argument
 static const char model_message[] = "Required. Path to an .prototxt file with a trained model.filename no ext";
@@ -48,10 +50,11 @@ TensorRT::~TensorRT()
 
 void TensorRT::init(void)
 {
-
+    std::string meanfile = FLAGS_m_mean;
+    const char* mean = meanfile.data();
     // Parse mean file
     ICaffeParser* parser = createCaffeParser();
-    IBinaryProtoBlob* meanBlob = parser->parseBinaryProto(FLAGS_m_mean);
+    IBinaryProtoBlob* meanBlob = parser->parseBinaryProto(mean);
     parser->destroy();
 
     // Subtract mean from image
@@ -92,14 +95,14 @@ void TensorRT::init(void)
     //const char* model = "../../../model/MobileNetSSD_deploy_iplugin.prototxt";
     
     tensorNet.LoadNetwork(model,weight,INPUT_BLOB_NAME, output_vector,
-                         model,weight2,INPUT_BLOB_NAME2, output_vector2,
+                         model2,weight2,INPUT_BLOB_NAME2, output_vector2,
                          BATCH_SIZE);
     std::cout << "load model finish\n";
 
     dimsData = tensorNet.getTensorDims(INPUT_BLOB_NAME);
     dimsOut = tensorNet.getTensorDims(OUTPUT_BLOB_NAME);
-    dimsData2 = tensorNet.getTensorDims(INPUT_BLOB_NAME2);
-    dimsOut2 = tensorNet.getTensorDims(OUTPUT_BLOB_NAME2);
+    dimsData2 = tensorNet.getTensorDimsForAlex(INPUT_BLOB_NAME2);
+    dimsOut2 = tensorNet.getTensorDimsForAlex(OUTPUT_BLOB_NAME2);
 
     data = allocateMemory( dimsData , (char*)"input blob");
     std::cout << "allocate data" << std::endl;
@@ -254,6 +257,7 @@ bool TensorRT::inference(void)
 void TensorRT::freeTensor(void)
 {
     cudaFree(imgCUDA);
+    cudaFree(roiCUDA);
     cudaFreeHost(imgCPU);
     cudaFree(output);
     tensorNet.destroy();

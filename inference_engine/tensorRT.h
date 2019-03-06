@@ -4,7 +4,7 @@
 #include "common.h"
 #include "cudaUtility.h"
 #include "mathFunctions.h"
-//#include "pluginImplement.h"
+#include "pluginImplement.h"
 #include "tensorNet.h"
 #include "imageBuffer.h"
 #include <opencv2/opencv.hpp>
