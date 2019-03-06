@@ -59,6 +59,8 @@ private:
     float* data2 = NULL;
     float* output2 = NULL;
 
+    float *roiData = new float[227*227*3];
+
     void* roiCUDA;
 };
 

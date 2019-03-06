@@ -220,7 +220,6 @@ bool TensorRT::inference(void)
         std::cout << "roi size:" << roiSize << "\n";
         tensorNet.imageInferenceForAlex( buffers2, output_vector2.size() + 1, BATCH_SIZE);
         std::cout << "end roi inference\n";
-        std::cout << classIndex << " , " << confidence << " , "  << "blue:" << blueMoreRedNum << " , " << "red:" << redMoreBlueNum << std::endl;
         cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
         cv::imshow("mobileNet",debugImg);
         free(roiDataBGR);
