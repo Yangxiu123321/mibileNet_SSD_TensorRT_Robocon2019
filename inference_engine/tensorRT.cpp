@@ -14,13 +14,16 @@ DEFINE_string(m_blue, "", model_message);
 /// It is a required parameter
 DEFINE_string(m_alex, "", model_message);
 
+/// It is a required parameter
+DEFINE_string(m_mean, "", model_message);
+
 int ParseAndCheckCommandLine(int argc, char *argv[]) {
     // ---------------------------Parsing and validation of input args--------------------------------------
     gflags::ParseCommandLineNonHelpFlags(&argc, &argv, true);
 
     std::cout << "Parsing input parameters" << std::endl;
 
-    if (FLAGS_m_red.empty() || FLAGS_m_blue.empty()) {
+    if (FLAGS_m_red.empty() || FLAGS_m_blue.empty() || FLAGS_m_mean.empty()) {
         std::cout << "[ERROR]" << "-m not set" << std::endl; 
         //return -1;
     }
@@ -45,6 +48,26 @@ TensorRT::~TensorRT()
 
 void TensorRT::init(void)
 {
+
+    // Parse mean file
+    ICaffeParser* parser = createCaffeParser();
+    IBinaryProtoBlob* meanBlob = parser->parseBinaryProto(FLAGS_m_mean);
+    parser->destroy();
+
+    // Subtract mean from image
+    const float* meanData = reinterpret_cast<const float*>(meanBlob->getData());
+
+    DimsNCHW testDim = meanBlob->getDimensions();
+
+    std::cout << testDim.n() <<" " << testDim.c() << " " << testDim.h() << " " << testDim.w() << std::endl;
+
+    for (int channel = 0; channel < 3; ++channel) {
+        int pixels = 227 * 227;
+        for (int i = 0; i < pixels; ++i) {
+        meanDataBGR[channel * pixels + i] = float(meanData[i * 3 + 2 - channel]);
+        }
+    }
+    meanBlob->destroy();
     std::string modelName = FLAGS_m_red + ".prototxt";
     std::string weightName = FLAGS_m_red + ".caffemodel";
     std::string modelName2 = FLAGS_m_alex + ".prototxt";

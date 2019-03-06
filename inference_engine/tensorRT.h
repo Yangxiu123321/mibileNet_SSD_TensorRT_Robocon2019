@@ -62,6 +62,9 @@ private:
     float *roiData = new float[227*227*3];
 
     void* roiCUDA;
+
+    // mean file
+    float *meanDataBGR = new float[227 * 227 * 3];
 };
 
 #endif
