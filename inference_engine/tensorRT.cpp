@@ -78,12 +78,12 @@ void TensorRT::init(void)
     std::string weightName2 = FLAGS_m_alex + ".caffemodel";
     if(playgroundIdx)
     {
-        modelName = FLAGS_m_red + ".prototxt";
-        weightName = FLAGS_m_red + ".caffemodel";
-    }else
-    {
         modelName = FLAGS_m_blue + ".prototxt";
         weightName = FLAGS_m_blue + ".caffemodel";
+    }else
+    {
+        modelName = FLAGS_m_red + ".prototxt";
+        weightName = FLAGS_m_red + ".caffemodel";
     }
     
     std::cout << "modelname:" << modelName << "\n" << "weightName:" << weightName << std::endl;
@@ -184,7 +184,9 @@ bool TensorRT::inference(void)
 
     void* buffers[] = { imgCUDA, output };
 
+    std::cout << "start global inference\n";
     tensorNet.imageInference( buffers, output_vector.size() + 1, BATCH_SIZE);
+    std::cout << "end global inference\n";
 
     vector<vector<float> > detections;
     
@@ -217,6 +219,7 @@ bool TensorRT::inference(void)
         cv::Mat roiImg;
         debugImg(cv::Rect(x1,y1,weidth,height)).copyTo(roiImg);
         cv::resize(roiImg,roiImg,cv::Size(227,227));
+        imshow("roi",roiImg);
         for (int channel = 0; channel < 3; ++channel)
         {
             int pixels = 227 * 227;
@@ -245,11 +248,12 @@ bool TensorRT::inference(void)
 
         void* buffers2[] = { roiCUDA, output2 };
         std::cout << "start roi inference\n";
-        std::cout << "roi size:" << roiSize << "\n";
+        //std::cout << "roi size:" << roiSize << "\n";
         int continueFlag = 0;
-        tensorNet.imageInferenceForAlex( buffers2, output_vector2.size() + 1, BATCH_SIZE,continueFlag);
+        tensorNet.imageInferenceForAlex( buffers2, output_vector2.size() + 1, BATCH_SIZE,&continueFlag,playgroundIdx);
         if(continueFlag)
         {
+            std::cout << "finish continue\n";
             free(roiDataBGR);
             continue;
         }
@@ -274,7 +278,7 @@ bool TensorRT::inference(void)
         {
             runFlag = 0;
         }
-        
+        std::cout << "\033[31mboneScore:\033[0m" << boneScore << "\n" << "runFlag:" << runFlag << std::endl;
         std::cout << "end roi inference\n";
         cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
         cv::imshow("mobileNet",debugImg);

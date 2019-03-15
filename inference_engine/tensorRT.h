@@ -33,7 +33,7 @@ public:
 
     int playgroundIdx;
 
-    uchar runFlag = 0;
+    int runFlag = 0;
   
 private:
     TensorNet tensorNet;

@@ -349,7 +349,7 @@ bool SortByProb(const std::pair<int, float>& a,
   return (a.second > b.second);
 }
 
-void TensorNet::imageInferenceForAlex(void** buffers, int nbBuffer, int batchSize,int continueFlag,int playgroundIdx)
+void TensorNet::imageInferenceForAlex(void** buffers, int nbBuffer, int batchSize,int *continueFlag,int playgroundIdx)
 {
     assert(engine2->getNbBindings() == 2);
 //   void *buffers[2];
@@ -429,15 +429,17 @@ void TensorNet::imageInferenceForAlex(void** buffers, int nbBuffer, int batchSiz
     // }
     int index = results.at(0).first;
     float confidence = results.at(0).second * 100;
+    std::cout << "AlexIndex:" << index << "\n";
+    std::cout << "confidence:" << confidence << "\n";
     // 红场蓝快与蓝场红块都需要返回
-    if((playgroundIdx && index) || (!playgroundIdx && !index))
+    if((!playgroundIdx && index) || (playgroundIdx && !index))
     {
-        continueFlag = 1;
+        *continueFlag = 1;
     }else
     {
-        continueFlag = 0;
+        *continueFlag = 0;
     }
-    
+    std::cout << "continueFlag:" << *continueFlag << "\n";
 
 //  PrintInference(prob, LABELS_FILE, HOTDOG_MODE);
 //  Release the context and buffers

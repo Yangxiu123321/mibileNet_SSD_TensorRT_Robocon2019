@@ -10,6 +10,8 @@ set(BUILD_DEPS "YES" CACHE BOOL "If YES, will install dependencies into sandbox.
 
 set (SERIAL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/serial/src)
 set (CAMERA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/mindVisionApi/src)
+set (INFERENCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inference_engine)
+set (GFLAGS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/gflags)
 
 set(PROJECT_OUTPUT_DIR  ${PROJECT_BINARY_DIR}/build)
 set(PROJECT_INCLUDE_DIR ${PROJECT_OUTPUT_DIR}/include)
@@ -45,20 +47,48 @@ set(CUDA_NVCC_FLAGS
 	-gencode arch=compute_62,code=sm_62
         )
 
+file(GLOB cudaSources util/cuda/*.cu)
+file(GLOB cudaIncludes util/cuda/*.h)
 
-#file(GLOB sources util/*.cu util/*.cpp util/cuda/*.cu  util/cuda/*.cpp  tensorRTplugin/*.cpp  tensorRTplugin/*.cu)
-file(GLOB includes tensorRTplugin/*.h util/cuda/*.h util/*.h)
+file(GLOB tensorRTsourceFiles tensorRTplugin/*.cpp tensorRTplugin/*.cu)
+file(GLOB tensorRTheaderFiles tensorRTplugin/*.h)
+
+file(GLOB includes tensorRTplugin/*.h util/cuda/*.h util/*.h inference_engine/*.h )
 
 # serial lib
-#file(GLOB SERIAL_SRC ${SERIAL_DIR}/*.cc)
-#add_library(serial SHARED ${SERIAL_SRC})
-#install(TARGETS serial LIBRARY DESTINATION lib)
+file(GLOB SERIAL_SRC ${SERIAL_DIR}/*.cc)
+add_library(serial SHARED ${SERIAL_SRC})
+install(TARGETS serial LIBRARY DESTINATION lib)
 
 #mvCamera lib
-#file(GLOB CAMERA_SRC ${CAMERA_DIR}/*.cpp)
-#add_library(camera SHARED ${CAMERA_SRC})
-#target_link_libraries(camera ${CMAKE_CURRENT_SOURCE_DIR}/mindVisionApi/lib/libMVSDK.so)
-#install(TARGETS camera LIBRARY DESTINATION lib)
+file(GLOB CAMERA_SRC ${CAMERA_DIR}/*.cpp)
+add_library(camera SHARED ${CAMERA_SRC})
+target_link_libraries(camera ${CMAKE_CURRENT_SOURCE_DIR}/mindVisionApi/lib/libMVSDK.so)
+install(TARGETS camera LIBRARY DESTINATION lib)
+
+#infer
+file(GLOB sources util/*.cu util/*.cpp util/cuda/*.cu  util/cuda/*.cpp  tensorRTplugin/*.cpp  tensorRTplugin/*.cu ${INFERENCE_DIR}/*.cpp)
+cuda_add_library(inference SHARED ${sources})
+target_link_libraries(inference ${CMAKE_CURRENT_SOURCE_DIR}/tensorRT4/ARM64/lib/libnvcaffe_parser.so)
+target_link_libraries(inference ${CMAKE_CURRENT_SOURCE_DIR}/tensorRT4/ARM64/lib/libnvinfer.so)
+target_link_libraries(inference ${CMAKE_CURRENT_SOURCE_DIR}/tensorRT4/ARM64/lib/libnvinfer_plugin.so)
+target_link_libraries(inference ${CMAKE_CURRENT_SOURCE_DIR}/tensorRT4/ARM64/lib/libnvparsers.so)
+# transfer all headers to the include directory
+foreach(include ${includes})
+    message("-- Copying ${include}")
+    configure_file(${include} ${PROJECT_INCLUDE_DIR} COPYONLY)
+endforeach()
+
+## install
+foreach(include ${includes})
+    install(FILES "${include}" DESTINATION include/inference)
+endforeach()
+
+#tensor (will be error)
+#file(GLOB TENSOR_SRC ${INFERENCE_DIR}/*.cpp)
+#add_library(tensor SHARED ${TENSOR_SRC})
+#target_link_libraries(tensor ${OpenCV_LIBS})
+#install(TARGETS tensor LIBRARY DESTINATION lib)
 
 include_directories(${PROJECT_INCLUDE_DIR}/util)
 include_directories(${PROJECT_BINARY_DIR}/util)
@@ -70,6 +100,8 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/util
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CUDA_INCLUDE_DIRS}
+    ${INFERENCE_DIR}
+    ${GFLAGS_DIR}/include
     )
 
 
@@ -84,9 +116,11 @@ link_directories(${OpenCV_LIBRARY_DIRS})
 
 target_link_libraries(mobileNet
 	${OpenCV_LIBS}
-	${CMAKE_CURRENT_SOURCE_DIR}/mindVisionApi/lib/libMVSDK.so
-	${CMAKE_CURRENT_SOURCE_DIR}/lib/libinferLib.so
-	${CMAKE_CURRENT_SOURCE_DIR}/lib/libserial.so
-	${CMAKE_CURRENT_SOURCE_DIR}/lib/libcamera.so
+	inference
+        serial
+        #tensor
+	camera
+	${GFLAGS_DIR}/lib/libgflags_nothreads.a
 	${CUDA_LIBRARIES}
+
 )

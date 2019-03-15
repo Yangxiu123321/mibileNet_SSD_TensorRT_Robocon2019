@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-    int playground = 1;
+    int playground = 0;
     //serial init
     std::cout << "[INFO]" << "serial init...\n";
     serial::Serial my_serial(FLAGS_com, 115200, serial::Timeout::simpleTimeout(2));
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     // camera init
     std::cout << "camera init\n";
     // playground-1 only want to be test
-    MvInit mvCamera(playground-1);
+    MvInit mvCamera(playground);
     //tensorRT.srcImg =cv::imread("/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/test_picture/1.BMP");
     while(1)
     {
@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
 	cv::imshow("src",tensorRT.srcImg);
 
         // inference
+        std::cout << "\n";
 	std::cout << "do inference\n";
         tensorRT.inference();
         //cv::imshow("src",tensorRT.debugImg);

@@ -70,7 +70,7 @@ public:
     void createInference();
 
     void imageInference(void** buffers, int nbBuffer, int batchSize);
-    void imageInferenceForAlex(void** buffers, int nbBuffer, int batchSize);
+    void imageInferenceForAlex(void** buffers, int nbBuffer, int batchSize,int *continueFlag,int playgroundIdx);
 
     void timeInference(int iteration, int batchSize);
 
