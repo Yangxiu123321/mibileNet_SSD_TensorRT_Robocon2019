@@ -273,7 +273,13 @@ bool TensorRT::inference(void)
         }
         if(boneScore > 49)
         {
-            runFlag = 1;
+            runtime ++;
+            if(runtime > 20)
+            {
+                runtime = 0;
+                runFlag = 1;
+            }
+            
         }else
         {
             runFlag = 0;
