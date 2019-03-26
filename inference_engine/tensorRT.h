@@ -34,6 +34,7 @@ public:
     int playgroundIdx;
 
     int runFlag = 0;
+    int runtime = 0;
   
 private:
     TensorNet tensorNet;
