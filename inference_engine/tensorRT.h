@@ -35,6 +35,7 @@ public:
 
     int runFlag = 0;
     int runtime = 0;
+    int isUseAlex = 1;
   
 private:
     TensorNet tensorNet;

@@ -250,12 +250,16 @@ bool TensorRT::inference(void)
         std::cout << "start roi inference\n";
         //std::cout << "roi size:" << roiSize << "\n";
         int continueFlag = 0;
-        tensorNet.imageInferenceForAlex( buffers2, output_vector2.size() + 1, BATCH_SIZE,&continueFlag,playgroundIdx);
-        if(continueFlag)
+        // 是否使用Alex进行颜色分类
+        if(isUseAlex)
         {
-            std::cout << "finish continue\n";
-            free(roiDataBGR);
-            continue;
+            tensorNet.imageInferenceForAlex( buffers2, output_vector2.size() + 1, BATCH_SIZE,&continueFlag,playgroundIdx);
+            if(continueFlag)
+            {
+                std::cout << "finish continue\n";
+                free(roiDataBGR);
+                continue;
+            }
         }
         switch(int(classIndex))
         {
