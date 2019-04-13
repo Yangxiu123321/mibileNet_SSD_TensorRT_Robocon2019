@@ -253,7 +253,7 @@ bool TensorRT::inference(void)
         // 是否使用Alex进行颜色分类
         if(isUseAlex)
         {
-            tensorNet.imageInferenceForAlex( buffers2, output_vector2.size() + 1, BATCH_SIZE,&continueFlag,playgroundIdx);
+            tensorNet.imageInferenceForAlex( buffers2, output_vector2.size() + 1,BATCH_SIZE,&continueFlag,playgroundIdx);
             if(continueFlag)
             {
                 std::cout << "finish continue\n";
