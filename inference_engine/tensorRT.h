@@ -52,7 +52,7 @@ private:
     float* data = NULL;
     float* output = NULL;
 
-    void* imgCPU;
+    //void* imgCPU;
     void* imgCUDA;
 
     /*data2*/

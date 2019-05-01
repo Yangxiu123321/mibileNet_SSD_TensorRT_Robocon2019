@@ -191,7 +191,7 @@ bool TensorRT::inference(void)
     vector<vector<float> > detections;
     
     int boneScore = 0;
-    for (int k=0; k<3; k++)
+    for (int k=0; k<1; k++)
     {
         if(output[7*k+1] == -1)
             break;
@@ -299,14 +299,16 @@ bool TensorRT::inference(void)
         free(roiDataBGR);
     }
     free(imgData);
+    cudaFree(imgCUDA);
+    cudaFree(roiCUDA);
     return true;
 }
 
 void TensorRT::freeTensor(void)
 {
-    cudaFree(imgCUDA);
-    cudaFree(roiCUDA);
-    cudaFreeHost(imgCPU);
+    //cudaFree(imgCUDA);
+    //cudaFree(roiCUDA);
+    //cudaFreeHost(imgCPU);
     cudaFree(output);
     cudaFree(output2);
     tensorNet.destroy();
