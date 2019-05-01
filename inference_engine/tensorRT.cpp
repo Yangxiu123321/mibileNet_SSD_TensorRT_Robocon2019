@@ -278,7 +278,7 @@ bool TensorRT::inference(void)
         if(boneScore > 49)
         {
             runtime ++;
-            if(runtime > 20)
+            if(runtime > runTimeLimit)
             {
                 runtime = 0;
                 runFlag = 1;
@@ -291,7 +291,11 @@ bool TensorRT::inference(void)
         std::cout << "\033[31mboneScore:\033[0m" << boneScore << "\n" << "runFlag:" << runFlag << std::endl;
         std::cout << "end roi inference\n";
         cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
-        cv::imshow("mobileNet",debugImg);
+	if(isShowDebugImg)
+	{
+		cv::imshow("mobileNet",debugImg);
+	}
+        
         free(roiDataBGR);
     }
     free(imgData);

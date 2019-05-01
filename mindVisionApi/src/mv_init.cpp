@@ -120,7 +120,7 @@ CameraSdkStatus MvInit::createCamera(int playgroundId)
 		//printf(CameraGetErrorString(status));
 		return FALSE;
 	}
-
+	CameraLoadParameter(m_hCamera,PARAMETER_TEAM_DEFAULT);
 	//"获得该相机的特性描述"
 	CameraGetCapability(m_hCamera, &sCameraInfo);
 

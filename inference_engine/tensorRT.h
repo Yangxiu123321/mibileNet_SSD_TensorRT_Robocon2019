@@ -35,6 +35,8 @@ public:
 
     int runFlag = 0;
     int runtime = 0;
+    int runTimeLimit = 20;
+    int isShowDebugImg = 1;
     int isUseAlex = 1;
   
 private:
