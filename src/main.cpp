@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     // openVINO init
     std::cout << "openvino init\n";
     TensorRT tensorRT(argc,argv,playground);
-    tensorRT.runTimeLimit = 20;
+    tensorRT.runTimeLimit = 5;
     tensorRT.isUseAlex = 1;
     tensorRT.isShowDebugImg = 1;
 
@@ -34,21 +34,21 @@ int main(int argc, char *argv[])
 	//cv::flip(srcImg,tensorRT.srcImg,1);
         tensorRT.srcImg = mvCamera.getImage();
         //cap >> tensorRT.srcImg;
-	cv::imshow("src",tensorRT.srcImg);
+		cv::imshow("src",tensorRT.srcImg);
 
         // inference
         std::cout << "\n";
-	std::cout << "do inference\n";
+		std::cout << "do inference\n";
         tensorRT.inference();
         //cv::imshow("src",tensorRT.debugImg);
 	
         int c = cv::waitKey(1);
-	if(c == 27 || c == 'q' || c == 'Q')
-	{
-	  std::cout << "[INFO]" << "finish !!!\n";
-	  break;
+		if(c == 27 || c == 'q' || c == 'Q' || tensorRT.runFlag)
+		{
+			std::cout << "[INFO]" << "finish !!!\n";
+			break;
+		}
 	}
-    }
     std::cout << "[INFO]" << "free tensor memory!!!\n";
     tensorRT.freeTensor();
     return 0;

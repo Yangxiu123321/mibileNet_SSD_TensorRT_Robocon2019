@@ -297,10 +297,10 @@ bool TensorRT::inference(void)
 	}
         
         free(roiDataBGR);
+	cudaFree(roiCUDA);
     }
     free(imgData);
     cudaFree(imgCUDA);
-    cudaFree(roiCUDA);
     return true;
 }
 
