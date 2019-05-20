@@ -38,8 +38,6 @@ public:
 	CameraHandle    m_hCamera;			 
 	tSdkFrameHead   m_sFrInfo;		
 	Mat srcImage;
-	int cameraSetExposureTime = 8880;
-	int cameraSetAnalogGain = 2;
 	sem_t           sems;
 	pthread_t       id;
 
@@ -54,5 +52,7 @@ private:
 	tSdkFrameStatistic  m_sFrameLast;
 	int					m_iTimeLast;
 	char		    g_CameraName[64];
+	int cameraSetExposureTime = 8880;
+	int cameraSetAnalogGain = 2;
 };
 

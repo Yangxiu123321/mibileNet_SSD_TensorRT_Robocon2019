@@ -9,7 +9,7 @@
 using namespace std;
 
 
-MvInit::MvInit(int cameraId)
+MvInit::MvInit(int cameraId,int exposureTime,int analogGain)
 {
 	/* sem_init()第二个参数为0表示这个信号量是当前进程的局部信号量，否则该信号
 	 * 就可以在多个进程之间共享 */
@@ -18,7 +18,8 @@ MvInit::MvInit(int cameraId)
 		cerr << "sems init err" << endl;
 		exit(0);
 	}
-		
+	cameraSetExposureTime = exposureTime;
+	cameraSetAnalogGain = analogGain;
 	createCamera(cameraId);
 }
 
