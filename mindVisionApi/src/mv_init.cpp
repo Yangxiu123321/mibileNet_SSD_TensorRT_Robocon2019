@@ -4,12 +4,31 @@
 #include <pthread.h>
 #include "CameraApi.h"
 #include <semaphore.h>
-
+#include <gflags/gflags.h>
 
 using namespace std;
 
 
-MvInit::MvInit(int cameraId)
+/// @brief message for model argument
+static const char model_message[] = "Required. camear needed paramer";
+
+/// It is a required parameter
+DEFINE_int32(exposureTime,8880, model_message);
+
+/// It is a required parameter
+DEFINE_int32(analogGain,2, model_message);
+
+int ParseAndCheckCommandLine(int argc, char *argv[]) {
+    // ---------------------------Parsing and validation of input args--------------------------------------
+    gflags::ParseCommandLineNonHelpFlags(&argc, &argv, true);
+
+    std::cout << "Parsing camera input parameters" << std::endl;
+
+    return 0;
+}
+
+
+MvInit::MvInit(int argc,char *argv[],int cameraId)
 {
 	/* sem_init()第二个参数为0表示这个信号量是当前进程的局部信号量，否则该信号
 	 * 就可以在多个进程之间共享 */
@@ -18,6 +37,8 @@ MvInit::MvInit(int cameraId)
 		cerr << "sems init err" << endl;
 		exit(0);
 	}
+
+        ParseAndCheckCommandLine(argc,argv);
 		
 	createCamera(cameraId);
 }
@@ -147,9 +168,9 @@ CameraSdkStatus MvInit::createCamera(int playgroundId)
 	// exposea// 设置曝光时间手动曝光
 	CameraSetAeState(m_hCamera,FALSE);
         // 曝光时间us，尽量达到30帧每秒。
-	CameraSetExposureTime(m_hCamera,8880);//7370
+        CameraSetExposureTime(m_hCamera,FLAGS_exposureTime);//8880
 	// 模拟增益
-	CameraSetAnalogGain(m_hCamera,2);
+        CameraSetAnalogGain(m_hCamera,FLAGS_analogGain);
 	// RGB增益
         // red:
         // blue:137 100 112

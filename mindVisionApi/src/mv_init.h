@@ -23,7 +23,7 @@ typedef void *PVOID;
 class MvInit
 {
 public:
-	MvInit(int cameraId);
+	MvInit(int argc,char *argv[],int cameraId);
 	~MvInit();
 	CameraSdkStatus createCamera(int playgroundId);
 

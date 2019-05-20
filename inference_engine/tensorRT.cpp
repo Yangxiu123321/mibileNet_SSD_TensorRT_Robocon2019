@@ -184,9 +184,9 @@ bool TensorRT::inference(void)
 
     void* buffers[] = { imgCUDA, output };
 
-    std::cout << "start global inference\n";
+    //std::cout << "start global inference\n";
     tensorNet.imageInference( buffers, output_vector.size() + 1, BATCH_SIZE);
-    std::cout << "end global inference\n";
+    //std::cout << "end global inference\n";
 
     vector<vector<float> > detections;
     
@@ -214,6 +214,7 @@ bool TensorRT::inference(void)
         int x2 = static_cast<int>(xmax * debugImg.cols);
         int y2 = static_cast<int>(ymax * debugImg.rows);
         std::cout << classIndex << " , " << confidence << std::endl;
+        std::cout << x1 << " " << y1 << " " << x2 << " " << y2 << std::endl;
         int weidth = x2 - x1;
         int height = y2 - y1;
         cv::Mat roiImg;
@@ -247,7 +248,7 @@ bool TensorRT::inference(void)
         }
 
         void* buffers2[] = { roiCUDA, output2 };
-        std::cout << "start roi inference\n";
+        //std::cout << "start roi inference\n";
         //std::cout << "roi size:" << roiSize << "\n";
         int continueFlag = 0;
         // 是否使用Alex进行颜色分类
@@ -288,8 +289,8 @@ bool TensorRT::inference(void)
         {
             runFlag = 0;
         }
-        std::cout << "\033[31mboneScore:\033[0m" << boneScore << "\n" << "runFlag:" << runFlag << std::endl;
-        std::cout << "end roi inference\n";
+        //std::cout << "\033[31mboneScore:\033[0m" << boneScore << "\n" << "runFlag:" << runFlag << std::endl;
+        //std::cout << "end roi inference\n";
         cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
 	if(isShowDebugImg)
 	{
@@ -297,7 +298,7 @@ bool TensorRT::inference(void)
 	}
         
         free(roiDataBGR);
-	    cudaFree(roiCUDA);
+        cudaFree(roiCUDA);
     }
     free(imgData);
     cudaFree(imgCUDA);

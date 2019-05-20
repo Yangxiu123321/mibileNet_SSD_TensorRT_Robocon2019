@@ -22,10 +22,11 @@ int main(int argc, char *argv[])
     tensorRT.isShowDebugImg = 1;
 
     // camera init
-    std::cout << "camera init\n";
+    //std::cout << "camera init\n";
     // playground-1 only want to be test
-    MvInit mvCamera(playground);
+    MvInit mvCamera(argc,argv,playground);
     //tensorRT.srcImg =cv::imread("/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/test_picture/1.BMP");
+    cv::VideoCapture cap("/home/nvidia/Videos/29.avi");
     while(1)
     {
         // get image
@@ -34,21 +35,21 @@ int main(int argc, char *argv[])
 	//cv::flip(srcImg,tensorRT.srcImg,1);
         tensorRT.srcImg = mvCamera.getImage();
         //cap >> tensorRT.srcImg;
-		cv::imshow("src",tensorRT.srcImg);
+        cv::imshow("src",tensorRT.srcImg);
 
         // inference
-        std::cout << "\n";
-		std::cout << "do inference\n";
+        //std::cout << "\n";
+        //std::cout << "do inference\n";
         tensorRT.inference();
         //cv::imshow("src",tensorRT.debugImg);
 	
         int c = cv::waitKey(1);
-		if(c == 27 || c == 'q' || c == 'Q' || tensorRT.runFlag)
-		{
-			std::cout << "[INFO]" << "finish !!!\n";
-			break;
-		}
-	}
+        if(c == 27 || c == 'q' || c == 'Q')
+        {
+                std::cout << "[INFO]" << "finish !!!\n";
+                break;
+        }
+    }
     std::cout << "[INFO]" << "free tensor memory!!!\n";
     tensorRT.freeTensor();
     return 0;
