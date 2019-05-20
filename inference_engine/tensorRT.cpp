@@ -198,10 +198,10 @@ bool TensorRT::inference(void)
         int classIndex = output[7*k+1];
         if(classIndex == 0 || classIndex == 4)
         {
-        continue;
+            continue;
         }
         float confidence = output[7*k+2];   
-        if(confidence < 0.6)
+        if(confidence < boneConfidence)
         {
             continue;
         }
@@ -297,7 +297,7 @@ bool TensorRT::inference(void)
 	}
         
         free(roiDataBGR);
-	cudaFree(roiCUDA);
+	    cudaFree(roiCUDA);
     }
     free(imgData);
     cudaFree(imgCUDA);

@@ -38,6 +38,7 @@ public:
     int runTimeLimit = 20;
     int isShowDebugImg = 1;
     int isUseAlex = 1;
+    float boneConfidence = 0.6;
   
 private:
     TensorNet tensorNet;
