@@ -214,7 +214,7 @@ bool TensorRT::inference(void)
         int x2 = static_cast<int>(xmax * debugImg.cols);
         int y2 = static_cast<int>(ymax * debugImg.rows);
         std::cout << classIndex << " , " << confidence << std::endl;
-        std::cout << x1 << " " << y1 << " " << x2 << " " << y2 << std::endl;
+        //std::cout << x1 << " " << y1 << " " << x2 << " " << y2 << std::endl;
         //判断块是否静止
         if(abs(x1 - x1Last) > boundaryErrorLimit || abs(x2 - x2Last) > boundaryErrorLimit || abs(y1 - y1Last) > boundaryErrorLimit || abs(y2 - y2Last) > boundaryErrorLimit)
         {
@@ -222,6 +222,11 @@ bool TensorRT::inference(void)
             boneScoreNum_40 = 0;
             boneScoreNum_20 = 0;
             std::cout << "boundaryErrorLimit is out\n";
+	    x1Last = x1;
+            x2Last = x2;
+            y1Last = y1;
+            y2Last = y2;
+	    std::cout << "python:" << abs(x1 - x1Last) << " " << abs(y1 - y1Last) << " " << abs(x2 - x2Last) << " " << abs(y2 - y2Last) << std::endl; 
             continue;
         }
         std::cout << "python:" << abs(x1 - x1Last) << " " << abs(y1 - y1Last) << " " << abs(x2 - x2Last) << " " << abs(y2 - y2Last) << std::endl;        
