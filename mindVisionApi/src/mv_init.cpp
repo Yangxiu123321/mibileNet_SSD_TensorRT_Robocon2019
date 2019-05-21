@@ -9,6 +9,7 @@
 using namespace std;
 
 
+<<<<<<< HEAD
 /// @brief message for model argument
 static const char model_message[] = "Required. camear needed paramer";
 
@@ -29,6 +30,9 @@ int ParseAndCheckCommandLine(int argc, char *argv[]) {
 
 
 MvInit::MvInit(int argc,char *argv[],int cameraId)
+=======
+MvInit::MvInit(int cameraId,int exposureTime,int analogGain)
+>>>>>>> 525b265d95dda41638d5fe30f8598faed277abfe
 {
 	/* sem_init()第二个参数为0表示这个信号量是当前进程的局部信号量，否则该信号
 	 * 就可以在多个进程之间共享 */
@@ -37,9 +41,14 @@ MvInit::MvInit(int argc,char *argv[],int cameraId)
 		cerr << "sems init err" << endl;
 		exit(0);
 	}
+<<<<<<< HEAD
 
         ParseAndCheckCommandLine(argc,argv);
 		
+=======
+	cameraSetExposureTime = exposureTime;
+	cameraSetAnalogGain = analogGain;
+>>>>>>> 525b265d95dda41638d5fe30f8598faed277abfe
 	createCamera(cameraId);
 }
 
@@ -168,9 +177,15 @@ CameraSdkStatus MvInit::createCamera(int playgroundId)
 	// exposea// 设置曝光时间手动曝光
 	CameraSetAeState(m_hCamera,FALSE);
         // 曝光时间us，尽量达到30帧每秒。
+<<<<<<< HEAD
         CameraSetExposureTime(m_hCamera,FLAGS_exposureTime);//8880
 	// 模拟增益
         CameraSetAnalogGain(m_hCamera,FLAGS_analogGain);
+=======
+	CameraSetExposureTime(m_hCamera,cameraSetExposureTime);//7370
+	// 模拟增益
+	CameraSetAnalogGain(m_hCamera,cameraSetAnalogGain);
+>>>>>>> 525b265d95dda41638d5fe30f8598faed277abfe
 	// RGB增益
         // red:
         // blue:137 100 112
