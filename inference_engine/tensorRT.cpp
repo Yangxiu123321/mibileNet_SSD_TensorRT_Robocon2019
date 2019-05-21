@@ -289,7 +289,7 @@ bool TensorRT::inference(void)
         {
             runFlag = 0;
         }
-        //std::cout << "\033[31mboneScore:\033[0m" << boneScore << "\n" << "runFlag:" << runFlag << std::endl;
+        std::cout << "\033[31mboneScore:\033[0m" << boneScore << "\n" << "runFlag:" << runFlag << std::endl;
         //std::cout << "end roi inference\n";
         cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
 	if(isShowDebugImg)
