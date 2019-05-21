@@ -222,7 +222,7 @@ bool TensorRT::inference(void)
             boneScoreNum_40 = 0;
             boneScoreNum_20 = 0;
             std::cout << "boundaryErrorLimit is out\n";
-	    std::cout <<  boundaryErrorLimit << std::endl;
+	        // std::cout <<  boundaryErrorLimit << std::endl;
             std::cout << "python:" << abs(x1 - x1Last) << " " << abs(y1 - y1Last) << " " << abs(x2 - x2Last) << " " << abs(y2 - y2Last) << std::endl; 
 	        x1Last = x1;
             x2Last = x2;
