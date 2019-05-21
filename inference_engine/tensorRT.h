@@ -36,7 +36,6 @@ public:
     int runFlag = 0;
     //第一个快不是50分时，置此标志位
     int breakFlag = 0;
-    int runtime = 0;
     int runTimeLimit = 20;
     int boundaryErrorLimit = 10;
     int isShowDebugImg = 1;
