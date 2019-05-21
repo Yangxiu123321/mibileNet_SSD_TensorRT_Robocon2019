@@ -215,6 +215,19 @@ bool TensorRT::inference(void)
         int y2 = static_cast<int>(ymax * debugImg.rows);
         std::cout << classIndex << " , " << confidence << std::endl;
         std::cout << x1 << " " << y1 << " " << x2 << " " << y2 << std::endl;
+        //判断块是否静止
+        if(abs(x1 - x1Last) > boundaryErrorLimit || abs(x2 - x2Last) > boundaryErrorLimit || abs(y1 - y1Last) > boundaryErrorLimit || abs(y2 - y2Last) > boundaryErrorLimit)
+        {
+            boneScoreNum_50 = 0;
+            boneScoreNum_40 = 0;
+            boneScoreNum_20 = 0;
+            std::cout << "boundaryErrorLimit is out\n";
+            continue;
+        }
+        x1Last = x1;
+        x2Last = x2;
+        y1Last = y1;
+        y2Last = y2;
         int weidth = x2 - x1;
         int height = y2 - y1;
         cv::Mat roiImg;
@@ -265,37 +278,41 @@ bool TensorRT::inference(void)
         switch(int(classIndex))
         {
             case 1:
-                boneScore += 50;
+                boneScoreNum_50 = boneScoreNum_50 + 1;
+                boneScoreNum_40  = 0;
+                boneScoreNum_20 = 0;
             break;
             case 2:
-                boneScore += 40;
+                boneScoreNum_50 = 0;
+                boneScoreNum_40 = boneScoreNum_40 + 1;
+                boneScoreNum_20 = 0;
             break;
             case 3:
-                boneScore += 20;
+                boneScoreNum_50 = 0;
+                boneScoreNum_40  = 0;
+                boneScoreNum_20 = boneScoreNum_20 + 1;
             break;
             default:
             break;
         }
-        if(boneScore > 49)
+        if(boneScoreNum_50 > runTimeLimit)
         {
-            runtime ++;
-            if(runtime > runTimeLimit)
-            {
-                runtime = 0;
-                runFlag = 1;
-            }
-            
+            runFlag = 1;
+        }else if(boneScoreNum_40 > runTimeLimit || boneScoreNum_20 > runTimeLimit)
+        {
+            breakFlag = 1;
         }else
         {
             runFlag = 0;
+            breakFlag = 0;
         }
         std::cout << "\033[31mboneScore:\033[0m" << boneScore << "\n" << "runFlag:" << runFlag << std::endl;
         //std::cout << "end roi inference\n";
         cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
-	if(isShowDebugImg)
-	{
-		cv::imshow("mobileNet",debugImg);
-	}
+        if(isShowDebugImg)
+        {
+            cv::imshow("mobileNet",debugImg);
+        }
         
         free(roiDataBGR);
         cudaFree(roiCUDA);

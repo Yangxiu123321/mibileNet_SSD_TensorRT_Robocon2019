@@ -34,8 +34,11 @@ public:
     int playgroundIdx;
 
     int runFlag = 0;
+    //第一个快不是50分时，置此标志位
+    int breakFlag = 0;
     int runtime = 0;
     int runTimeLimit = 20;
+    int boundaryErrorLimit = 10;
     int isShowDebugImg = 1;
     int isUseAlex = 1;
     float boneConfidence = 0.6;
@@ -65,6 +68,16 @@ private:
 
     float* data2 = NULL;
     float* output2 = NULL;
+
+    // bone score
+    int boneScoreNum_50 = 0;
+    int boneScoreNum_40 = 0;
+    int boneScoreNum_20 = 0;
+    // coordition stored
+    int x1Last = 0;
+    int y1Last = 0;
+    int x2Last = 0;
+    int x2Last = 0;
 
     float *roiData = new float[227*227*3];
 
