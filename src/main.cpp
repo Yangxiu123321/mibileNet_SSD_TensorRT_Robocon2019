@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     // playground-1 only want to be test
     MvInit mvCamera(argc,argv,playground);
     //tensorRT.srcImg =cv::imread("/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/test_picture/1.BMP");
-    cv::VideoCapture cap("/home/nvidia/Videos/29.avi");
+    //cv::VideoCapture cap("/home/nvidia/Videos/29.avi");
     while(1)
     {
         // get image

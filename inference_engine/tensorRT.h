@@ -76,7 +76,7 @@ private:
     int x1Last = 0;
     int y1Last = 0;
     int x2Last = 0;
-    int x2Last = 0;
+    int y2Last = 0;
 
     float *roiData = new float[227*227*3];
 
