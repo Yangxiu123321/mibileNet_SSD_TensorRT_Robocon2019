@@ -167,7 +167,7 @@ cv::TickMeter tmHaHa;
 bool TensorRT::inference(void)
 {
     tmHaHa.stop();
-    std::cout <<"infeTimeUse:"<< tmHa.getTimeSec() << "\n";
+    std::cout <<"infeTimeUse:"<< tmHaHa.getTimeSec() << "\n";
     tmHaHa.reset();
     tmHaHa.start();
     if(srcImg.empty())
