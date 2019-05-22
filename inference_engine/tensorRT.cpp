@@ -166,9 +166,6 @@ void TensorRT::loadImg( cv::Mat &input, int re_width, int re_height, float *data
 cv::TickMeter tmHaHa;
 bool TensorRT::inference(void)
 {
-    tmHaHa.stop();
-    std::cout <<"infeTimeUse:"<< tmHa.getTimeSec() << "\n";
-    tmHaHa.reset();
     tmHaHa.start();
     if(srcImg.empty())
     {
@@ -347,6 +344,9 @@ bool TensorRT::inference(void)
     }
     free(imgData);
     cudaFree(imgCUDA);
+    tmHaHa.stop();
+    std::cout <<"infeTimeUse:"<< tmHa.getTimeSec() << "\n";
+    tmHaHa.reset();
     return true;
 }
 
