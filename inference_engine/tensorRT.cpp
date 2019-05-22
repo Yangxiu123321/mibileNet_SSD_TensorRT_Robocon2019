@@ -7,6 +7,7 @@ using namespace nvcaffeparser1;
 /// @brief message for model argument
 static const char model_message[] = "Required. Path to an .prototxt file with a trained model.filename no ext";
 
+// 通过gflags将频繁调整的参数移为外部参数
 /// It is a required parameter
 DEFINE_string(m_red, "", model_message);
 
@@ -50,6 +51,7 @@ TensorRT::~TensorRT()
 
 void TensorRT::init(void)
 {
+    // 图像均值文件路径
     std::string meanfile = FLAGS_m_mean;
     const char* mean = meanfile.data();
     // Parse mean file
@@ -63,6 +65,7 @@ void TensorRT::init(void)
     DimsNCHW testDim = meanBlob->getDimensions();
     std::cout << "meanfile(nchw):" << testDim.n() <<" " << testDim.c() << " " << testDim.h() << " " << testDim.w() << std::endl;
 
+    // 像素值BBB..GGG..RRR排序
     for (int channel = 0; channel < 3; ++channel) {
         int pixels = 227 * 227;
         for (int i = 0; i < pixels; ++i) {
@@ -72,6 +75,7 @@ void TensorRT::init(void)
     meanBlob->destroy();\
     std::cout << "import meanfile sucessfully\n";
 
+    // 生产模型路径
     std::string modelName = FLAGS_m_red + ".prototxt";
     std::string weightName = FLAGS_m_red + ".caffemodel";
     std::string modelName2 = FLAGS_m_alex + ".prototxt";
@@ -95,11 +99,13 @@ void TensorRT::init(void)
     //const char* weight  = "../../../model/MobileNetSSD_deploy.caffemodel";
     //const char* model = "../../../model/MobileNetSSD_deploy_iplugin.prototxt";
     
+    // 模型导入
     tensorNet.LoadNetwork(model,weight,INPUT_BLOB_NAME, output_vector,
                          model2,weight2,INPUT_BLOB_NAME2, output_vector2,
                          BATCH_SIZE);
     std::cout << "load model finish\n";
 
+    // 为两个模型的输入输出分配空间大小
     dimsData = tensorNet.getTensorDims(INPUT_BLOB_NAME);
     dimsOut = tensorNet.getTensorDims(OUTPUT_BLOB_NAME);
     dimsData2 = tensorNet.getTensorDimsForAlex(INPUT_BLOB_NAME2);
@@ -125,6 +131,7 @@ float* TensorRT::allocateMemory(DimsCHW dims, char* info)
     return ptr;
 }
 
+// 图片导入并且减去均值文件
 void TensorRT::loadImg( cv::Mat &input, int re_width, int re_height, float *data_unifrom,const float3 mean,const float scale )
 {
     int i;
@@ -196,10 +203,12 @@ bool TensorRT::inference(void)
         if(output[7*k+1] == -1)
             break;
         int classIndex = output[7*k+1];
+        // 过滤0：背景 4：场外
         if(classIndex == 0 || classIndex == 4)
         {
             continue;
         }
+        // 可信度过滤
         float confidence = output[7*k+2];   
         if(confidence < boneConfidence)
         {
@@ -215,7 +224,7 @@ bool TensorRT::inference(void)
         int y2 = static_cast<int>(ymax * debugImg.rows);
         std::cout << classIndex << " , " << confidence << std::endl;
         //std::cout << x1 << " " << y1 << " " << x2 << " " << y2 << std::endl;
-        //判断块是否静止
+        // 判断块是否静止
         if(abs(x1 - x1Last) > boundaryErrorLimit || abs(x2 - x2Last) > boundaryErrorLimit || abs(y1 - y1Last) > boundaryErrorLimit || abs(y2 - y2Last) > boundaryErrorLimit)
         {
             boneScoreNum_50 = 0;
@@ -235,6 +244,8 @@ bool TensorRT::inference(void)
         x2Last = x2;
         y1Last = y1;
         y2Last = y2;
+
+        // 得到ROI，判断ROI的颜色
         int weidth = x2 - x1;
         int height = y2 - y1;
         cv::Mat roiImg;
@@ -257,6 +268,7 @@ bool TensorRT::inference(void)
         }
         float* roiDataBGR = (float*)malloc(roiSize);
         memset(roiDataBGR,0,roiSize);
+        // 减去均值
         for(int i = 0;i<227*227*3;i++)
         {
             roiDataBGR[i] = roiData[i] - meanDataBGR[i];
@@ -274,7 +286,10 @@ bool TensorRT::inference(void)
         // 是否使用Alex进行颜色分类
         if(isUseAlex)
         {
+
+            // 利用AlexNet进行推理
             tensorNet.imageInferenceForAlex( buffers2, output_vector2.size() + 1,BATCH_SIZE,&continueFlag,playgroundIdx);
+            // 如果颜色识别通过
             if(continueFlag)
             {
                 std::cout << "finish continue\n";
