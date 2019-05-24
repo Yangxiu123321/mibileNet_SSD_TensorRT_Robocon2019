@@ -313,7 +313,7 @@ bool TensorRT::inference(void)
         //std::cout << "roi size:" << roiSize << "\n";
         int continueFlag = 0;
         // 是否使用Alex进行颜色分类
-        if(getIsUseAlex)
+        if(getIsUseAlexFlag)
         {
 
             // 利用AlexNet进行推理
