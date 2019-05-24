@@ -326,6 +326,7 @@ bool TensorRT::inference(void)
                 continue;
             }
         }
+        cv::Scalar sa = cv::Scalar(0,0,0,0);
         switch(int(classIndex))
         {
             case 1:
