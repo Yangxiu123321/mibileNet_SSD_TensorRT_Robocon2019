@@ -17,9 +17,6 @@ int main(int argc, char *argv[])
     // openVINO init
     std::cout << "openvino init\n";
     TensorRT tensorRT(argc,argv,playground);
-    tensorRT.runTimeLimit = 5;
-    tensorRT.isUseAlex = 1;
-    tensorRT.isShowDebugImg = 1;
 
     // camera init
     //std::cout << "camera init\n";
