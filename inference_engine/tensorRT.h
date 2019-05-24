@@ -80,7 +80,7 @@ private:
     // 是否显示画框后的调试图像
     bool getIsShowDebugImg = false;
     // 是否使用alxNet
-    bool getIsUseAlxFlag = false;
+    bool getIsUseAlexFlag = false;
     // 判断的可信度度阈值
     float getBoneConfidenceLimit = 0.7;
 

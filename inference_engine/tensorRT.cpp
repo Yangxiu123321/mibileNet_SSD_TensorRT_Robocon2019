@@ -57,6 +57,8 @@ TensorRT::TensorRT(int argc,char *argv[],int playground)
 {
     ParseAndCheckCommandLine(argc,argv);
     // 接收参数
+    // 为了方便不传参，直接在这了赋值
+    playgroundIdx = playground % 2;
     init();
 }
 
@@ -70,8 +72,6 @@ TensorRT::~TensorRT()
 
 void TensorRT::init(void)
 {
-    // 红蓝场
-    playgroundIdx = playground % 2;
     // 使用alexnet来判断颜色，进行过滤
     getIsUseAlexFlag = FLAGS_isUseAlex;
     getBoundaryErrorLimit = FLAGS_boundaryErrorLimit;
