@@ -52,5 +52,8 @@ private:
 	tSdkFrameStatistic  m_sFrameLast;
 	int					m_iTimeLast;
 	char		    g_CameraName[64];
+
+	int exposureTime = 8880;
+	int analogGain = 2;
 };
 

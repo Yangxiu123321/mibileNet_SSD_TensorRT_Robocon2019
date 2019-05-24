@@ -13,10 +13,16 @@ using namespace std;
 static const char model_message[] = "Required. camear needed paramer";
 
 /// It is a required parameter
-DEFINE_int32(exposureTime,8880, model_message);
+DEFINE_int32(red_ExposureTime,8880, model_message);
 
 /// It is a required parameter
-DEFINE_int32(analogGain,2, model_message);
+DEFINE_int32(red_AnalogGain,2, model_message);
+
+/// It is a required parameter
+DEFINE_int32(blue_ExposureTime,8880, model_message);
+
+/// It is a required parameter
+DEFINE_int32(blue_AnalogGain,2, model_message);
 
 int ParseAndCheckCommandLine(int argc, char *argv[]) {
     // ---------------------------Parsing and validation of input args--------------------------------------
@@ -114,6 +120,18 @@ static void* uiDisplayThread(void* lpParam)
 CameraSdkStatus MvInit::createCamera(int playgroundId)
 {
 	int cameraIdx = playgroundId%2;	
+	//red
+	if(!playgroundId)
+	{
+		exposureTime = FLAGS_red_ExposureTime;
+		analogGain = FLAGS_red_AnalogGain;
+	}else
+	{
+		//blue
+		exposureTime = FLAGS_blue_ExposureTime;
+		analogGain = FLAGS_blue_AnalogGain;
+	}
+
 	tSdkCameraDevInfo sCameraList[CAMERA_NUM];
 	INT iCameraNums;
 	CameraSdkStatus status = CAMERA_STATUS_SUCCESS;
@@ -168,9 +186,9 @@ CameraSdkStatus MvInit::createCamera(int playgroundId)
 	// exposea// 设置曝光时间手动曝光
 	CameraSetAeState(m_hCamera,FALSE);
     // 曝光时间us，尽量达到30帧每秒。
-    CameraSetExposureTime(m_hCamera,FLAGS_exposureTime);//8880
+    CameraSetExposureTime(m_hCamera,exposureTime);//8880
 	// 模拟增益
-    CameraSetAnalogGain(m_hCamera,FLAGS_analogGain);
+    CameraSetAnalogGain(m_hCamera,analogGain);
 	// RGB增益
     // red:
     // blue:137 100 112
