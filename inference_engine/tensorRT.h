@@ -31,17 +31,12 @@ public:
     cv::Mat srcImg;
     cv::Mat debugImg;
 
+    // 红蓝场标志位red:0 blue:1
     int playgroundIdx;
-
+    // 向主控发启动命令的标志位
     int runFlag = 0;
     //第一个快不是50分时，置此标志位
-    int breakFlag = 0;
-    int runTimeLimit = 20;
-    int boundaryErrorLimit = 10;
-    int isShowDebugImg = 1;
-    int isUseAlex = 1;
-    float boneConfidence = 0.6;
-  
+    int breakFlag = 0;  
 private:
     TensorNet tensorNet;
 	/* data */
@@ -77,6 +72,17 @@ private:
     int y1Last = 0;
     int x2Last = 0;
     int y2Last = 0;
+
+    // 连续几次得分一样
+    int getRunTimeLimit = 10;
+    // 坐标变动范围一定时认为块静止
+    int getBoundaryErrorLimit = 10;
+    // 是否显示画框后的调试图像
+    bool getIsShowDebugImg = false;
+    // 是否使用alxNet
+    bool getIsUseAlxFlag = false;
+    // 判断的可信度度阈值
+    float getBoneConfidenceLimit = 0.7;
 
     float *roiData = new float[227*227*3];
 

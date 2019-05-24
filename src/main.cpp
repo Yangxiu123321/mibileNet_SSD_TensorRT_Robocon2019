@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         int c = cv::waitKey(1);
         if(c == 27 || c == 'q' || c == 'Q')
         {
-		cv::imwrite("test1.BMP",tensorRT.srcImg);
+		        cv::imwrite("test1.BMP",tensorRT.srcImg);
                 std::cout << "[INFO]" << "finish !!!\n";
                 break;
         }

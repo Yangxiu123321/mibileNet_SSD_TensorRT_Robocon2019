@@ -7,6 +7,15 @@ using namespace nvcaffeparser1;
 /// @brief message for model argument
 static const char model_message[] = "Required. Path to an .prototxt file with a trained model.filename no ext";
 
+static const char alex_message[] = "Required. use alexnet to classify color;default:false";
+
+static const char runTimeLimit_message[] = "runTimeLimit;default:10";
+
+static const char boundaryErrorLimit_message[] = "boundaryErrorLimit;default:20";
+
+static const char isShowDebugImg_message[] = "isShowDebugImg;default:20";
+
+static const char boneConfidenceLimit_message[] = "boneConfidenceLimit;default:0.7";
 // 通过gflags将频繁调整的参数移为外部参数
 /// It is a required parameter
 DEFINE_string(m_red, "", model_message);
@@ -19,6 +28,16 @@ DEFINE_string(m_alex, "", model_message);
 
 /// It is a required parameter
 DEFINE_string(m_mean, "", model_message);
+
+DEFINE_bool(isUseAlex,false,alex_message);
+
+DEFINE_int32(runTimeLimit,10,runTimeLimit_message);
+
+DEFINE_int32(boundaryErrorLimit,10,boundaryErrorLimit_message);
+
+DEFINE_bool(isShowDebugImg,false,isShowDebugImg_message);
+
+DEFINE_double(boneConfidenceLimit,0.7,boneConfidenceLimit_message);
 
 int ParseAndCheckCommandLine(int argc, char *argv[]) {
     // ---------------------------Parsing and validation of input args--------------------------------------
@@ -37,7 +56,7 @@ int ParseAndCheckCommandLine(int argc, char *argv[]) {
 TensorRT::TensorRT(int argc,char *argv[],int playground)
 {
     ParseAndCheckCommandLine(argc,argv);
-    playgroundIdx = playground % 2;
+    // 接收参数
     init();
 }
 
@@ -51,6 +70,14 @@ TensorRT::~TensorRT()
 
 void TensorRT::init(void)
 {
+    // 红蓝场
+    playgroundIdx = playground % 2;
+    // 使用alexnet来判断颜色，进行过滤
+    getIsUseAlexFlag = FLAGS_isUseAlex;
+    getBoundaryErrorLimit = FLAGS_boundaryErrorLimit;
+    getRunTimeLimit = FLAGS_runTimeLimit;
+    getIsShowDebugImg = FLAGS_isShowDebugImg;
+    getBoneConfidenceLimit = FLAGS_boneConfidenceLimit;
     // 图像均值文件路径
     std::string meanfile = FLAGS_m_mean;
     const char* mean = meanfile.data();
@@ -212,7 +239,7 @@ bool TensorRT::inference(void)
         }
         // 可信度过滤
         float confidence = output[7*k+2];   
-        if(confidence < boneConfidence)
+        if(confidence < getBoneConfidenceLimit)
         {
             continue;
         }
@@ -227,7 +254,7 @@ bool TensorRT::inference(void)
         std::cout << classIndex << " , " << confidence << std::endl;
         //std::cout << x1 << " " << y1 << " " << x2 << " " << y2 << std::endl;
         // 判断块是否静止
-        if(abs(x1 - x1Last) > boundaryErrorLimit || abs(x2 - x2Last) > boundaryErrorLimit || abs(y1 - y1Last) > boundaryErrorLimit || abs(y2 - y2Last) > boundaryErrorLimit)
+        if(abs(x1 - x1Last) > getBoundaryErrorLimit || abs(x2 - x2Last) > getBoundaryErrorLimit || abs(y1 - y1Last) > getBoundaryErrorLimit || abs(y2 - y2Last) > getBoundaryErrorLimit)
         {
             boneScoreNum_50 = 0;
             boneScoreNum_40 = 0;
@@ -286,7 +313,7 @@ bool TensorRT::inference(void)
         //std::cout << "roi size:" << roiSize << "\n";
         int continueFlag = 0;
         // 是否使用Alex进行颜色分类
-        if(isUseAlex)
+        if(getIsUseAlex)
         {
 
             // 利用AlexNet进行推理
@@ -319,10 +346,10 @@ bool TensorRT::inference(void)
             default:
             break;
         }
-        if(boneScoreNum_50 > runTimeLimit)
+        if(boneScoreNum_50 > getRunTimeLimit)
         {
             runFlag = 1;
-        }else if(boneScoreNum_40 > runTimeLimit || boneScoreNum_20 > runTimeLimit)
+        }else if(boneScoreNum_40 > getRunTimeLimit || boneScoreNum_20 > getRunTimeLimit)
         {
             breakFlag = 1;
         }else
@@ -334,7 +361,7 @@ bool TensorRT::inference(void)
         std::cout << "boneScore:" << boneScoreNum_50 << " " << boneScoreNum_40 << " " << boneScoreNum_20 << " " << runFlag << std::endl;
         //std::cout << "end roi inference\n";
         cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
-        if(isShowDebugImg)
+        if(getIsShowDebugImg)
         {
             cv::imshow("mobileNet",debugImg);
         }
