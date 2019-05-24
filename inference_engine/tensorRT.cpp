@@ -326,20 +326,30 @@ bool TensorRT::inference(void)
                 continue;
             }
         }
-        cv::Scalar sa = cv::Scalar(0,0,0,0);
+        cv::Scalar rgbScalar = cv::Scalar(0,0,0,0);
+       
         switch(int(classIndex))
         {
             case 1:
+				rgbScalar[0] = 255;
+				rgbScalar[1] = 0;
+				rgbScalar[2] = 0;
                 boneScoreNum_50 = boneScoreNum_50 + 1;
                 boneScoreNum_40  = 0;
                 boneScoreNum_20 = 0;
             break;
             case 2:
+            	rgbScalar[0] = 0;
+				rgbScalar[1] = 255;
+				rgbScalar[2] = 0;
                 boneScoreNum_50 = 0;
                 boneScoreNum_40 = boneScoreNum_40 + 1;
                 boneScoreNum_20 = 0;
             break;
             case 3:
+            	rgbScalar[0] = 0;
+				rgbScalar[1] = 0;
+				rgbScalar[2] = 255;
                 boneScoreNum_50 = 0;
                 boneScoreNum_40  = 0;
                 boneScoreNum_20 = boneScoreNum_20 + 1;
@@ -361,7 +371,7 @@ bool TensorRT::inference(void)
         //std::cout << "\033[31mboneScore:\033[0m" << boneScore << "\n" << "runFlag:" << runFlag << std::endl;
         std::cout << "boneScore:" << boneScoreNum_50 << " " << boneScoreNum_40 << " " << boneScoreNum_20 << " " << runFlag << std::endl;
         //std::cout << "end roi inference\n";
-        cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),cv::Scalar(255,0,255),1);
+        cv::rectangle(debugImg,cv::Point(x1,y1),cv::Point(x2,y2),rgbScalar,1);
         if(getIsShowDebugImg)
         {
             cv::imshow("mobileNet",debugImg);
