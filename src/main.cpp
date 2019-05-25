@@ -1,5 +1,6 @@
 #include "main.h"
 #include "tensorRT.h"
+#include "MatCom.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -22,15 +23,22 @@ int main(int argc, char *argv[])
     //std::cout << "camera init\n";
     // playground-1 only want to be test
     MvInit mvCamera(argc,argv,playground);
+
+    // 接收端
+	MatCom mcRec("client");
+	mc.init(12345);
+    
+    
     //tensorRT.srcImg =cv::imread("/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/test_picture/1.BMP");
     //cv::VideoCapture cap("/home/nvidia/Videos/29.avi");
     while(1)
     {
         // get image
-	//std::cout << "get img\n";
+	    //std::cout << "get img\n";
         //cv::Mat srcImg = mvCamera.getImage();
-	//cv::flip(srcImg,tensorRT.srcImg,1);
-        tensorRT.srcImg = mvCamera.getImage();
+	    //cv::flip(srcImg,tensorRT.srcImg,1);
+        //tensorRT.srcImg = mvCamera.getImage();
+        tensorRT.srcImg = mcRec.receiveMat();
         //cap >> tensorRT.srcImg;
         cv::imshow("src",tensorRT.srcImg);
 

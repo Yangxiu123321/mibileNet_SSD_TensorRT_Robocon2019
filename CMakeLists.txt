@@ -117,8 +117,8 @@ link_directories(${OpenCV_LIBRARY_DIRS})
 target_link_libraries(mobileNet
 	${OpenCV_LIBS}
 	inference
-        serial
-        #tensor
+    serial
+    #tensor
 	camera
 	${GFLAGS_DIR}/lib/libgflags_nothreads.a
 	${CUDA_LIBRARIES}
