@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
         }
     }
     std::cout << "[INFO]" << "free tensor memory!!!\n";
-    mvCamera.m_bExit = TRUE;
+    //mvCamera.m_bExit = TRUE;
     tensorRT.freeTensor();
     sleep(3);
     return 0;
