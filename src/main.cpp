@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 
     // 接收端
 	MatCom mcRec("client");
-	mc.init(12345);
+	mcRec.init(12345);
     
     
     //tensorRT.srcImg =cv::imread("/home/nvidia/code/tensorRT/mibileNet_SSD_TensorRT_Robocon2019/test_picture/1.BMP");
