@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     // camera init
     //std::cout << "camera init\n";
     // playground-1 only want to be test
-    MvInit mvCamera(argc,argv,playground);
+    //MvInit mvCamera(argc,argv,playground);
 
     // 接收端
 	MatCom mcRec("client");
