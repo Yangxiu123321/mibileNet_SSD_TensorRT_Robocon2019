@@ -40,13 +40,13 @@ int main(int argc, char *argv[])
         //tensorRT.srcImg = mvCamera.getImage();
         tensorRT.srcImg = mcRec.receiveMat();
         //cap >> tensorRT.srcImg;
-        cv::imshow("src",tensorRT.srcImg);
+        //cv::imshow("src",tensorRT.srcImg);
 
         // inference
         //std::cout << "\n";
         //std::cout << "do inference\n";
         tensorRT.inference();
-        //cv::imshow("src",tensorRT.debugImg);
+        cv::imshow("src",tensorRT.debugImg);
 	
         int c = cv::waitKey(1);
         if(c == 27 || c == 'q' || c == 'Q')
