@@ -232,9 +232,12 @@ bool TensorRT::inference(void)
         if(output[7*k+1] == -1)
             break;
         int classIndex = output[7*k+1];
-        // 过滤0：背景 4：场外
+        // 过滤0：背景 4：场外，顺便把各计数次数置为0
         if(classIndex == 0 || classIndex == 4)
         {
+            boneScoreNum_50 = 0;
+            boneScoreNum_40 = 0;
+            boneScoreNum_20 = 0;
             continue;
         }
         // 可信度过滤
